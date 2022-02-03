@@ -52,7 +52,8 @@ namespace IWMM.Repositories
 
         public IEnumerable<Entry> FindByNames(IEnumerable<string> names)
         {
-            return _entries.Find(x => names.Any(n => n.ToLowerInvariant() == x.Name.ToLowerInvariant()));
+            return _entries.FindAll().Where(x => names.Any(n => n.ToLowerInvariant() == x.Name.ToLowerInvariant()));
+            //return _entries.Find(x => names.Any(n => n.ToLowerInvariant() == x.Name.ToLowerInvariant()));
         }
 
         public void Dispose()

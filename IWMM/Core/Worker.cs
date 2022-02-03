@@ -91,11 +91,15 @@ namespace IWMM.Core
 
             foreach (var whitelistSetting in whitelistSettings)
             {
+                if (whitelistSetting.AllowedEntries.Count < 1) return;
+
                 var schemaAdaptor = GetSchemaAdaptor(whitelistSetting.SchemaType);
 
                 var schemaRepository = GetSchemaRepository(whitelistSetting.SchemaType);
 
-                var entries = GetEntriesByNames(whitelistSetting.AllowedEntries);
+                var entries = whitelistSetting.AllowedEntries.Count > 0
+                    ? GetEntriesByNames(whitelistSetting.AllowedEntries)
+                    : new List<Entry>();
 
                 var middlewareName = GetOptionalMiddlewareName(whitelistSetting, whitelistSetting.SchemaType);
 

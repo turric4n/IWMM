@@ -5,6 +5,7 @@
         public IpWhiteListSettings()
         {
             AllowedEntries = new List<string>();
+            TraefikMiddlewareSettings = new TraefikMiddlewareSettings();
         }
 
         public SchemaType SchemaType { get; set; }

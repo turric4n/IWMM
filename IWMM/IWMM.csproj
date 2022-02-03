@@ -5,14 +5,22 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>iwmm</PackageId>
+    <Authors>Turrican</Authors>
+    <Company>Turrican Software</Company>
+    <Product>iwmm</Product>
+    <Description>IP Whitelist Middleware Manager</Description>
+    <Copyright>Turrican Software 2022</Copyright>
+    <PackageProjectUrl>https://github.com/turric4n/IWMM</PackageProjectUrl>
+    <AssemblyName>iwmm</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Traefik.yml" />
+    <None Remove="IWMM.yml" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Traefik.yml">
+    <Content Include="iwmm.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -26,6 +34,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="6.0.0" />
     <PackageReference Include="NetEscapades.Configuration.Yaml" Version="2.1.0" />
     <PackageReference Include="QuickLogger.Extensions.NetCore" Version="1.6.7" />
+    <PackageReference Include="QuickLogger.NetStandard" Version="1.6.3" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
 

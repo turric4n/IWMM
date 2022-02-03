@@ -25,7 +25,7 @@ static IHostBuilder CreateHostBuilder(string[] args)
         .WithParsed(o =>
         {
             commandLineParams = o;
-            commandLineParams.ConfigFile = "Test.yml";
+            commandLineParams.ConfigFile = "iwmm.yml";
         });
 
     return Host

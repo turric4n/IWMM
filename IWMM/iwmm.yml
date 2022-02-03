@@ -2,11 +2,11 @@
   IpWhiteListSettings:
     - SchemaType: TraefikIpWhitelistMiddlewareFile
       TraefikMiddlewareSettings:
-        - Name: pisosTestAllowed
-          FilePath: pisosTestAllowed.yml
-          AllowedEntries:
-            - Turrican
-            - Office
+        Name: pisosTestAllowed
+        FilePath: "pisosTestAllowed.yml"
+      AllowedEntries:
+        - Turrican
+        - Office
   Entries:
     - Name: Turrican
       Fqdn: turrican.soundcast.me
