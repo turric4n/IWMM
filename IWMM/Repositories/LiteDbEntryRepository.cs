@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using IWMM.Entities;
+﻿using IWMM.Entities;
 using IWMM.Settings;
 using LiteDB;
 using Microsoft.Extensions.Logging;
@@ -39,6 +34,7 @@ namespace IWMM.Repositories
             if (!_entries.Update(entry))
             {
                 _entries.Insert(entry);
+                _logger.LogInformation($"Inserted entry into database -> { entry.Name }");
             }
 
             _entries.EnsureIndex(x => x.Name);
