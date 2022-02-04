@@ -1,5 +1,6 @@
 ﻿using System.Dynamic;
 using IWMM.Services.Abstractions;
+using Microsoft.Extensions.Logging;
 using YamlDotNet.Serialization;
 
 namespace IWMM.Services.Impl.Traefik
@@ -12,13 +13,16 @@ namespace IWMM.Services.Impl.Traefik
 
         private readonly ISerializer _yamlSerializer;
 
+        private readonly ILogger<TraefikWhitelistYamlRepository> _logger;
+
         public TraefikWhitelistYamlRepository(
             IDeserializer deserializer, 
-            ISerializer serializer)
+            ISerializer serializer, ILogger<TraefikWhitelistYamlRepository> logger)
         {
             _yamlDeserializer = deserializer;
 
             _yamlSerializer = serializer;
+            _logger = logger;
         }
 
         private dynamic LoadFile(string path)
@@ -43,12 +47,25 @@ namespace IWMM.Services.Impl.Traefik
             try
             {
                 var content = _yamlSerializer.Serialize(schema);
-                File.WriteAllText(path, content);
+
+                if (path == null)
+                    throw new ArgumentNullException(nameof(path));
+                if (path.Length == 0)
+                    throw new ArgumentException("Empty path!", nameof(path));
+
+                using var sw = new StreamWriter(path);
+
+                _logger.LogInformation($"Store schema into file -> {path}");
+
+                sw.Write(content);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw new YamlFileException($"Couldn't create yaml file! -> {e.Message}");
+                var message = $"Couldn't create yaml file! -> {e.Message}";
+
+                _logger.LogCritical(message);
+
+                throw new YamlFileException(message);
             }
         }
 

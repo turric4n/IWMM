@@ -19,6 +19,7 @@ namespace IWMM.Core
         private readonly Func<SchemaType, IEntriesToSchemaAdaptor> _schemaAdaptorLocator;
         private readonly IEntryRepository _entryRepository;
         private bool _working;
+        private int _currentJobSeconds;
 
         public Worker(
             IHostEnvironment hostEnvironment,
@@ -145,8 +146,14 @@ namespace IWMM.Core
                     _working = true;
                 }
 
+                using var scope = (_logger.BeginScope(
+                    new Dictionary<string, object>()
+                    {
+                        {"correlationId", Guid.NewGuid()},
+                    }));
+
                 _logger.LogInformation(
-                    $"Launching Job. Each : {_optionsSnapshot.Value.FqdnUpdateJobSeconds} second/s.");
+                    $"Launching Discover Job. Each : { _currentJobSeconds } second/s.");
 
                 UpdateEntries();
 
@@ -171,14 +178,14 @@ namespace IWMM.Core
 
                 await Task.Run(() =>
                 {
-                    var fqdnUpdateJobSeconds = (_optionsSnapshot.Value.FqdnUpdateJobSeconds < 30)
+                    _currentJobSeconds = (_optionsSnapshot.Value.FqdnUpdateJobSeconds < 30)
                         ? 30 : _optionsSnapshot.Value.FqdnUpdateJobSeconds;
 
                     JobManager.AddJob(FqdnUpdateJob,
                         s =>
                         {
                             s.WithName("FqdnUpdate Job Process")
-                                .ToRunEvery((int)fqdnUpdateJobSeconds)
+                                .ToRunEvery((int)_currentJobSeconds)
                                 .Seconds();
                             s.Execute();
                         });

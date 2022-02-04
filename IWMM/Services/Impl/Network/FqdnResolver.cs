@@ -1,13 +1,19 @@
 ﻿using System.Net;
 using IWMM.Services.Abstractions;
 using IWMM.Settings;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace IWMM.Services.Impl.Network
 {
     public class FqdnResolver : IFqdnResolver
     {
-        private readonly IOptionsSnapshot<MainSettings> _settings;
+        private readonly ILogger<FqdnResolver> _logger;
+
+        public FqdnResolver(ILogger<FqdnResolver> logger)
+        {
+            _logger = logger;
+        }
 
         public async Task<string> GetIpAddressAsync(string fqdn)
         {
@@ -23,7 +29,11 @@ namespace IWMM.Services.Impl.Network
             }
             catch (Exception e)
             {
-                throw new FqdnResolverException($"Couldn't resolve {fqdn} -> {e.Message}");
+                var message = $"Couldn't resolve {fqdn} -> {e.Message}";
+
+                _logger.LogError(message);
+
+                throw new FqdnResolverException(message);
             }
         }
     }

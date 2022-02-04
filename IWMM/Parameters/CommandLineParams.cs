@@ -2,6 +2,6 @@
 {
     public class CommandLineParams
     {
-        public string ConfigFile { get; set; } = "IWMM.yml";
+        public string ConfigFile { get; set; } = "iwmm.yml";
     }
 }
