@@ -3,6 +3,7 @@
 
 Just use settings like this :
 
+```
 MainSettings:
   IpWhiteListSettings:
     - SchemaType: TraefikIpWhitelistMiddlewareFile
@@ -21,3 +22,4 @@ MainSettings:
       Fqdn: turrican.soundcast.me
     - Name: Office
       Fqdn: www.habitatsoft.com
+```
