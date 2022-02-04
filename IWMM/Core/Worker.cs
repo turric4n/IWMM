@@ -121,8 +121,8 @@ namespace IWMM.Core
                     var resolvedIp = _fqdnResolver.GetIpAddressAsync(entry.Fqdn).Result;
 
                     var dbEntry = _entryRepository.GetByName(entry.Name);
-                    dbEntry.CurrentIp = dbEntry.LatestIp;
-                    dbEntry.LatestIp = resolvedIp.ToString();
+                    dbEntry.PreviousIp = dbEntry.CurrentIp;
+                    dbEntry.CurrentIp = resolvedIp.ToString();
                     dbEntry.Fqdn = entry.Fqdn;
                     dbEntry.Name = entry.Name;
 

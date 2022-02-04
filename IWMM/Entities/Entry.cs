@@ -12,6 +12,6 @@ namespace IWMM.Entities
         public string Name { get; set; }
         public string Fqdn { get; set; }
         public string CurrentIp { get; set; }
-        public string LatestIp { get; set; }
+        public string PreviousIp { get; set; }
     }
 }

@@ -1,6 +1,9 @@
 using System.Threading.Tasks;
+using Castle.Core.Logging;
 using IWMM.Services.Abstractions;
 using IWMM.Services.Impl.Network;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NUnit.Framework;
 
 namespace IWMM.Tests
@@ -13,7 +16,8 @@ namespace IWMM.Tests
         [SetUp]
         public void Setup()
         {
-            fqdnResolver = new FqdnResolver();
+            var logger = new Mock<ILogger<FqdnResolver>>().Object;
+            fqdnResolver = new FqdnResolver(logger);
         }
 
         [TestCase("test.com", "67.225.146.248")]

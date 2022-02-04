@@ -37,7 +37,7 @@ namespace IWMM.Tests.Integration
             entry.Name = "Turrican";
             entry.Fqdn = "www.turric4n.com";
             entry.CurrentIp = "1.1.1.1";
-            entry.LatestIp = "2.2.2.2";
+            entry.PreviousIp = "2.2.2.2";
 
             //Act
             _entryRepository.AddOrUpdate(entry);
@@ -48,7 +48,7 @@ namespace IWMM.Tests.Integration
             Assert.IsNotNull(entryRetrieved);
             Assert.AreEqual(entry.Name, entryRetrieved.Name);
             Assert.AreEqual(entry.Fqdn, entryRetrieved.Fqdn);
-            Assert.AreEqual(entry.LatestIp, entryRetrieved.LatestIp);
+            Assert.AreEqual(entry.PreviousIp, entryRetrieved.PreviousIp);
             Assert.AreEqual(entry.CurrentIp, entryRetrieved.CurrentIp);
         }
     }
