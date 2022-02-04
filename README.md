@@ -10,6 +10,8 @@ MainSettings:
       TraefikMiddlewareSettings:
         Name: test1TestAllowed
         FilePath: "test1Allowed.yml"
+      AllowedEntries:
+        - Test1
     - SchemaType: TraefikIpWhitelistMiddlewareFile
       TraefikMiddlewareSettings:
         Name: test2TestAllowed
