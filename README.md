@@ -1,7 +1,7 @@
 # IWMM (IP Whitelist Middleware Manager)
 ## Useful tool to manage FQDN whitelisting rules for multiple webservers
 
-Just use settings like this :
+### Just use settings like this :
 
 ```
 MainSettings:
@@ -25,3 +25,6 @@ MainSettings:
     - Name: Office
       Fqdn: www.office.com
 ```
+
+#### Don't forget to pull docker image instead 
+```docker pull turrican/iwmm:latest```
