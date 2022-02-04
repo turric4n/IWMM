@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using IWMM.Entities;
 using IWMM.Services.Impl.Traefik;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NUnit.Framework;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -28,7 +30,9 @@ namespace IWMM.Tests.Integration
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
 
-            _yamelTraefikWhitelistYamlRepository = new TraefikWhitelistYamlRepository(_deserializer, _serializer);
+            var logger = new Mock<ILogger<TraefikWhitelistYamlRepository>>().Object;
+
+            _yamelTraefikWhitelistYamlRepository = new TraefikWhitelistYamlRepository(_deserializer, _serializer, logger);
 
             _traefikSchemaAdaptor = new EntriesToTraefikSchemaAdaptor();
         }
