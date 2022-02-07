@@ -1,0 +1,13 @@
+http:
+  middlewares:
+    test2TestAllowed:
+      ipWhiteList:
+        sourceRange:
+        - 67.225.146.248
+        - 13.107.6.156
+        ipStrategy:
+          excludedIPs:
+          - 192.168.180.212
+          - 192.168.180.212
+          - 192.168.83.212
+          - 192.168.180.44

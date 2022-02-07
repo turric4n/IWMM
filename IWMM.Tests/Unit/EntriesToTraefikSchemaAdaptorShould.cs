@@ -3,6 +3,8 @@ using IWMM.Services.Impl.Traefik;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using IWMM.Settings;
+using Entry = IWMM.Entities.Entry;
 
 namespace IWMM.Tests
 {
@@ -33,6 +35,10 @@ namespace IWMM.Tests
             var entry = new Entry() { CurrentIp = "1.1.1.1", Name = "Test" };
             var entry2 = new Entry() { CurrentIp = "2.2.2.2", Name = "Test" };
 
+            var excludedIp = new ExcludedEntries() { Ips = "192.168.0.1", Name = "Proxy" };
+
+            var excludedIps = new List<ExcludedEntries>() { excludedIp };
+
             var entries = new List<Entry>();
 
             entries.Add(entry);
@@ -40,9 +46,13 @@ namespace IWMM.Tests
 
             var middlewareName = "testingAllowed";
 
+            var entryBook = new EntryBook(middlewareName, entries, excludedIps);
+
+
+            var listEntrybook = new List<EntryBook>() { entryBook };
 
             //Act
-            var schema = traefikSchemaAdaptor.GetSchema(entries, middlewareName);
+            var schema = traefikSchemaAdaptor.GetSchema(listEntrybook);
 
             //Arrange
             Assert.IsTrue(((IDictionary<string, object>)schema).ContainsKey("http"));

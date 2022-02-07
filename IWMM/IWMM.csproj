@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -36,7 +36,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="6.0.0" />
     <PackageReference Include="NetEscapades.Configuration.Yaml" Version="2.1.0" />
     <PackageReference Include="QuickLogger.Extensions.NetCore" Version="1.6.7" />
-    <PackageReference Include="QuickLogger.NetStandard" Version="1.6.3" />
+    <PackageReference Include="QuickLogger.NetStandard" Version="1.6.4" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
 

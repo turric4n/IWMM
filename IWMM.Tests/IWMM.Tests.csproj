@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IWMM\IWMM.csproj" />
-    <ProjectReference Include="..\Traefik.IpWhitelist.Fqdn.Adaptor\IWMM.csproj" />
   </ItemGroup>
 
 </Project>

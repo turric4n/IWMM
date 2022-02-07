@@ -10,7 +10,7 @@ namespace IWMM.Repositories
     public class LiteDbEntryRepository : IEntryRepository, IDisposable
     {
         private readonly ILogger<LiteDbEntryRepository> _logger;
-        private readonly IOptionsSnapshot<MainSettings> _settings;
+        private readonly IOptions<MainSettings> _settings;
         private LiteDatabase _liteDatabase;
         private ILiteCollection<Entry> _entries;
 
@@ -21,7 +21,7 @@ namespace IWMM.Repositories
         }
 
         public LiteDbEntryRepository(ILogger<LiteDbEntryRepository> logger, 
-            IOptionsSnapshot<MainSettings> settings)
+            IOptions<MainSettings> settings)
         {
             _logger = logger;
             _settings = settings;

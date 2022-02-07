@@ -6,7 +6,8 @@ namespace IWMM.Services.Impl.Traefik
 {
     public class EntriesToTraefikSchemaAdaptor : IEntriesToSchemaAdaptor
     {
-        public dynamic GetSchema(IEnumerable<Entry> entries, string middlewareName = "")
+
+        public dynamic GetSchema(IEnumerable<EntryBook> entryBooks)
         {
             dynamic schema = new ExpandoObject();
 
@@ -14,19 +15,37 @@ namespace IWMM.Services.Impl.Traefik
 
             var subheader = header.middlewares = new ExpandoObject() as IDictionary<string, object>;
 
-            ((IDictionary<string, object>)subheader).Add(middlewareName, new ExpandoObject());
-
-            dynamic modulename = ((IDictionary<string, object>)subheader).Last().Value;
-
-            var whitelist = modulename.ipWhiteList = new ExpandoObject() as IDictionary<string, object>;
-
-            //whitelist.sourceRange = new ExpandoObject() as IDictionary<string, object>;
-
-            whitelist.sourceRange = new List<string>();
-
-            foreach (var entry in entries)
+            foreach (var entryBook in entryBooks)
             {
-                whitelist.sourceRange.Add(entry.CurrentIp);
+                ((IDictionary<string, object>)subheader).Add(entryBook.MiddlewareName, new ExpandoObject());
+
+                dynamic modulename = ((IDictionary<string, object>)subheader).Last().Value;
+
+                var whitelist = modulename.ipWhiteList = new ExpandoObject() as IDictionary<string, object>;
+
+                //whitelist.sourceRange = new ExpandoObject() as IDictionary<string, object>;
+
+                whitelist.sourceRange = new List<string>();
+
+                foreach (var entry in entryBook.Entries)
+                {
+                    whitelist.sourceRange.Add(entry.CurrentIp);
+                }
+
+                if (entryBook.MiddlewareExcludedEntries.Any())
+                {
+                    whitelist.ipStrategy = new ExpandoObject() as IDictionary<string, object>;
+
+                    whitelist.ipStrategy.excludedIPs = new List<string>();
+                    foreach (var excludedIp in entryBook.MiddlewareExcludedEntries)
+                    {
+                        var ips = excludedIp.Ips.Split(',');
+                        foreach (var ip in ips)
+                        {
+                            whitelist.ipStrategy.excludedIPs.Add(ip);
+                        }
+                    }
+                }
             }
 
             return schema;

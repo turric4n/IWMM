@@ -6,6 +6,8 @@
         FilePath: "test1Allowed.yml"
       AllowedEntries:
         - Test1
+      ExcludedEntries:
+        - Balancer1
     - SchemaType: TraefikIpWhitelistMiddlewareFile
       TraefikMiddlewareSettings:
         Name: test2TestAllowed
@@ -13,8 +15,13 @@
       AllowedEntries:
         - Test1
         - Office
+      ExcludedEntries:
+        - Balancer1
   Entries:
     - Name: Test1
       Fqdn: test.com
     - Name: Office
       Fqdn: www.office.com
+  IpStrategyExcludedEntries:
+    - Name: Balancer1
+      Ips: 192.168.180.212,192.168.180.212,192.168.83.212,192.168.180.44    

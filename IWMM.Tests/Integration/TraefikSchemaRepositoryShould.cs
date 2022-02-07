@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using IWMM.Entities;
 using IWMM.Services.Impl.Traefik;
+using IWMM.Settings;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using Entry = IWMM.Entities.Entry;
 
 namespace IWMM.Tests.Integration
 {
@@ -84,8 +86,12 @@ namespace IWMM.Tests.Integration
 
             var entries = GetDemoEntries();
 
+            var entryBook = new EntryBook(middlewareName, entries, new List<ExcludedEntries>());
+
+            var listEntrybook = new List<EntryBook>() { entryBook };
+
             //Act
-            var schema = _traefikSchemaAdaptor.GetSchema(entries, middlewareName);
+            var schema = _traefikSchemaAdaptor.GetSchema(listEntrybook);
 
             var serializedYaml = _yamelTraefikWhitelistYamlRepository.Serialize(schema);
             
@@ -105,8 +111,12 @@ namespace IWMM.Tests.Integration
 
             var entries = GetDemoEntries();
 
+            var entryBook = new EntryBook(middlewareName, entries, new List<ExcludedEntries>());
+
+            var listEntrybook = new List<EntryBook>() { entryBook };
+
             //Act
-            var schema = _traefikSchemaAdaptor.GetSchema(entries, middlewareName);
+            var schema = _traefikSchemaAdaptor.GetSchema(listEntrybook);
 
             _yamelTraefikWhitelistYamlRepository.Save(schema, settingsPath);
 

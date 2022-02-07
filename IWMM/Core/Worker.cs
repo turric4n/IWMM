@@ -2,8 +2,6 @@
 using IWMM.Entities;
 using IWMM.Services.Abstractions;
 using IWMM.Settings;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Entry = IWMM.Entities.Entry;
 
@@ -12,7 +10,7 @@ namespace IWMM.Core
     public class Worker : IHostedService
     {
         private readonly IHostEnvironment _hostEnvironment;
-        private readonly IOptionsSnapshot<MainSettings> _optionsSnapshot;
+        private readonly IOptions<MainSettings> _optionsSnapshot;
         private readonly ILogger<Worker> _logger;
         private readonly IFqdnResolver _fqdnResolver;
         private readonly Func<SchemaType, ISchemaRepository> _schemaRepositoryLocator;
@@ -23,7 +21,7 @@ namespace IWMM.Core
 
         public Worker(
             IHostEnvironment hostEnvironment,
-            IOptionsSnapshot<MainSettings> optionsSnapshot, 
+            IOptions<MainSettings> optionsSnapshot, 
             ILogger<Worker> logger, 
             IFqdnResolver fqdnResolver,
             Func<SchemaType, ISchemaRepository> schemaRepositoryLocator,
@@ -54,13 +52,12 @@ namespace IWMM.Core
             return _entryRepository.FindByNames(list);
         }
 
-        private void ExportWhitelist(IEnumerable<Entry> entries,
+        private void ExportWhitelist(IEnumerable<EntryBook> entryBooks,
             IEntriesToSchemaAdaptor schemaAdaptor,
             ISchemaRepository schemaRepository,
-            string middlewareName = "",
             string path = "")
         {
-            var schema = schemaAdaptor.GetSchema(entries, middlewareName);
+            var schema = schemaAdaptor.GetSchema(entryBooks);
 
             schemaRepository.Save(schema, path);
         }
@@ -102,11 +99,26 @@ namespace IWMM.Core
                     ? GetEntriesByNames(whitelistSetting.AllowedEntries)
                     : new List<Entry>();
 
+                if (!entries.Any()) break;
+
+
+                var excludedEntries =
+                    _optionsSnapshot
+                        .Value
+                        .IpStrategyExcludedEntries
+                        .Where(x => whitelistSetting.ExcludedEntries.Any(n =>
+                            n.ToLowerInvariant() == x.Name.ToLowerInvariant()));
+
+
                 var middlewareName = GetOptionalMiddlewareName(whitelistSetting, whitelistSetting.SchemaType);
 
                 var middlewarePath = GetOptionalPath(whitelistSetting, whitelistSetting.SchemaType);
 
-                ExportWhitelist(entries, schemaAdaptor, schemaRepository, middlewareName, middlewarePath);
+                var entryBook = new EntryBook(middlewareName, entries, excludedEntries);
+
+                var entrybookList = new List<EntryBook>() { entryBook };
+
+                ExportWhitelist(entrybookList, schemaAdaptor, schemaRepository, middlewarePath);
             }
         }
 
