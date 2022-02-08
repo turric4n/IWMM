@@ -29,7 +29,15 @@ namespace IWMM.Services.Impl.Traefik
 
                 foreach (var entry in entryBook.Entries)
                 {
-                    whitelist.sourceRange.Add(entry.CurrentIp);
+                    if (!string.IsNullOrEmpty(entry.CurrentIp))
+                    {
+                        whitelist.sourceRange.Add(entry.CurrentIp);
+                    }
+                    
+                    foreach (var ip in entry.PlainIps)
+                    {
+                        whitelist.sourceRange.Add(ip);
+                    }
                 }
 
                 if (entryBook.MiddlewareExcludedEntries.Any())

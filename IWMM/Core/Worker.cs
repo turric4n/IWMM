@@ -59,6 +59,8 @@ namespace IWMM.Core
         {
             var schema = schemaAdaptor.GetSchema(entryBooks);
 
+            if (!string.IsNullOrEmpty(path)) return;
+
             schemaRepository.Save(schema, path);
         }
 
@@ -89,7 +91,7 @@ namespace IWMM.Core
 
             foreach (var whitelistSetting in whitelistSettings)
             {
-                if (whitelistSetting.AllowedEntries.Count < 1) return;
+                if (whitelistSetting.AllowedEntries.Count < 1) continue;
 
                 var schemaAdaptor = GetSchemaAdaptor(whitelistSetting.SchemaType);
 
@@ -99,7 +101,7 @@ namespace IWMM.Core
                     ? GetEntriesByNames(whitelistSetting.AllowedEntries)
                     : new List<Entry>();
 
-                if (!entries.Any()) break;
+                if (!entries.Any()) continue;
 
 
                 var excludedEntries =
@@ -113,6 +115,8 @@ namespace IWMM.Core
                 var middlewareName = GetOptionalMiddlewareName(whitelistSetting, whitelistSetting.SchemaType);
 
                 var middlewarePath = GetOptionalPath(whitelistSetting, whitelistSetting.SchemaType);
+
+                if (string.IsNullOrEmpty(middlewarePath)) continue;
 
                 var entryBook = new EntryBook(middlewareName, entries, excludedEntries);
 
@@ -130,11 +134,19 @@ namespace IWMM.Core
             {
                 try
                 {
-                    var resolvedIp = _fqdnResolver.GetIpAddressAsync(entry.Fqdn).Result;
+                    var plainIps = !string.IsNullOrEmpty(entry.Ips) ? entry.Ips.Split(',').ToList() : new List<string>();
+
+                    var resolvedIp = string.Empty;
+
+                    if (!string.IsNullOrEmpty(entry.Fqdn))
+                    {
+                        resolvedIp = _fqdnResolver.GetIpAddressAsync(entry.Fqdn).Result;
+                    }
 
                     var dbEntry = _entryRepository.GetByName(entry.Name);
                     dbEntry.PreviousIp = dbEntry.CurrentIp;
-                    dbEntry.CurrentIp = resolvedIp.ToString();
+                    dbEntry.CurrentIp = resolvedIp;
+                    dbEntry.PlainIps = plainIps;
                     dbEntry.Fqdn = entry.Fqdn;
                     dbEntry.Name = entry.Name;
 

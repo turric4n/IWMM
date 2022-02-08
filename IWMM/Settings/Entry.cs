@@ -4,6 +4,6 @@
     {
         public string Name { get; set; }
         public string Fqdn { get; set; }
-        public string IpOrRange { get; set; }
+        public string Ips { get; set; }
     }
 }
