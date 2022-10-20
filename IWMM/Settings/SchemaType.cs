@@ -2,6 +2,7 @@
 {
     public enum SchemaType
     {
-        TraefikIpWhitelistMiddlewareFile
+        TraefikIpWhitelistMiddlewareFile,
+        TraefikPlain
     }
 }

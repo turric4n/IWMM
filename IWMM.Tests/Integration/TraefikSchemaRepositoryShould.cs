@@ -16,10 +16,11 @@ namespace IWMM.Tests.Integration
     [TestFixture(Category = "Integration Test")]
     public class TraefikSchemaRepositoryShould
     {
-        private TraefikWhitelistYamlRepository _yamelTraefikWhitelistYamlRepository;
+        private YamlRepository _yamelYamlRepository;
         private EntriesToTraefikSchemaAdaptor _traefikSchemaAdaptor;
         private ISerializer _serializer;
         private IDeserializer _deserializer;
+        private SchemaMerger _schemaMerger;
 
         [SetUp]
         public void Setup()
@@ -32,15 +33,23 @@ namespace IWMM.Tests.Integration
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
 
-            var logger = new Mock<ILogger<TraefikWhitelistYamlRepository>>().Object;
 
-            _yamelTraefikWhitelistYamlRepository = new TraefikWhitelistYamlRepository(_deserializer, _serializer, logger);
+
+            var logger = new Mock<ILogger<YamlRepository>>().Object;
+
+            _yamelYamlRepository = new YamlRepository(_deserializer, _serializer, logger);
 
             _traefikSchemaAdaptor = new EntriesToTraefikSchemaAdaptor();
+
+            _schemaMerger = new SchemaMerger();
+
+
         }
 
              /* TRAEFIK SCHEMA             
                 http:
+                  routes:
+                  services:
                   middlewares:        
                     allowedips:
                       ipWhiteList:
@@ -93,11 +102,65 @@ namespace IWMM.Tests.Integration
             //Act
             var schema = _traefikSchemaAdaptor.GetSchema(listEntrybook);
 
-            var serializedYaml = _yamelTraefikWhitelistYamlRepository.Serialize(schema);
+            var serializedYaml = _yamelYamlRepository.Serialize(schema);
             
             //Assert
             Assert.AreEqual(traefikYaml, serializedYaml);
         }
+
+        [Test]
+        public void Return_Valid_Schema_Given_Multiple_Yaml_Files()
+        {
+            //Arrange
+            var firstSchema = "first.yml";
+            var secondSchema = "second.yml";
+            var validMerge = File.ReadAllText("validmerged.yml");
+
+            //Act
+            var firstLoadedSchema = _yamelYamlRepository.Load(firstSchema);
+            var secondLoadedSchema = _yamelYamlRepository.Load(secondSchema);
+            var loadedSchemaList = new List<dynamic>();
+            loadedSchemaList.Add(firstLoadedSchema);
+            loadedSchemaList.Add(secondLoadedSchema);
+            var mergedSchema = _schemaMerger.Merge(loadedSchemaList);
+
+            //Assert
+            var serializedYaml = _yamelYamlRepository.Serialize(mergedSchema);
+            Assert.AreEqual(validMerge, serializedYaml);
+        }
+
+        [Test]
+        public void Return_Valid_Schema_Given_Multiple_Yaml_Files_With_Security_Entries()
+        {
+            //Arrange
+            var firstSchema = "first.yml";
+            var secondSchema = "second.yml";
+            var validMerge = File.ReadAllText("validmerged_with_middlewares.yml");
+            var middlewareName = "testingAllowed";
+            var settingsPath = "traefik.yml";
+            var traefikYaml = GetTraefikYaml();
+            var entries = GetDemoEntries();
+            var entryBook = new EntryBook(middlewareName, entries, new List<ExcludedEntries>());
+            var listEntrybook = new List<EntryBook>() { entryBook };
+
+
+            //Act
+            var firstLoadedSchema = _yamelYamlRepository.Load(firstSchema);
+            var secondLoadedSchema = _yamelYamlRepository.Load(secondSchema);
+            var thirdLoadedSchema = _traefikSchemaAdaptor.GetSchema(listEntrybook);
+
+            var loadedSchemaList = new List<dynamic>();
+            loadedSchemaList.Add(firstLoadedSchema);
+            loadedSchemaList.Add(secondLoadedSchema);
+            loadedSchemaList.Add(thirdLoadedSchema);
+
+            var mergedSchema = _schemaMerger.Merge(loadedSchemaList);
+
+            //Assert
+            var serializedYaml = _yamelYamlRepository.Serialize(mergedSchema);
+            Assert.AreEqual(validMerge, serializedYaml);
+        }
+
 
         [Test]
         public void Given_Valid_Traefik_Schema_Should_Stored_Into_Disk()
@@ -118,13 +181,13 @@ namespace IWMM.Tests.Integration
             //Act
             var schema = _traefikSchemaAdaptor.GetSchema(listEntrybook);
 
-            _yamelTraefikWhitelistYamlRepository.Save(schema, settingsPath);
+            _yamelYamlRepository.Save(schema, settingsPath);
 
             var content = File.ReadAllText(settingsPath);
 
-            var schemaReloaded = _yamelTraefikWhitelistYamlRepository.Load(settingsPath);
+            var schemaReloaded = _yamelYamlRepository.Load(settingsPath);
 
-            _yamelTraefikWhitelistYamlRepository.Save(schemaReloaded, settingsPath);
+            _yamelYamlRepository.Save(schemaReloaded, settingsPath);
 
             var contentReloaded = File.ReadAllText(settingsPath);
 

@@ -1,0 +1,13 @@
+http:
+  routers:
+    wowo:
+      rule: Host(`wowo`)
+      service: wowo
+      middlewares:
+       - somemiddleware@http  
+  services:
+    wowo:
+      loadbalancer:
+        servers:
+        - url: http://wowo:4444
+        passHostHeader: true 

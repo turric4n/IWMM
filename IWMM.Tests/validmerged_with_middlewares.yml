@@ -1,0 +1,27 @@
+﻿http:
+  middlewares:
+    testingAllowed:
+      ipWhiteList:
+        sourceRange:
+        - 1.1.1.1
+        - 2.2.2.2
+  routers:
+    blabla:
+      rule: Host(`blabla.com`)
+      service: bla
+    wowo:
+      rule: Host(`wowo`)
+      service: wowo
+      middlewares:
+      - somemiddleware@http
+  services:
+    blabla:
+      loadbalancer:
+        servers:
+        - url: http://blabla:2291
+        passHostHeader: true
+    wowo:
+      loadbalancer:
+        servers:
+        - url: http://wowo:4444
+        passHostHeader: true

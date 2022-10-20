@@ -5,7 +5,7 @@ using YamlDotNet.Serialization;
 
 namespace IWMM.Services.Impl.Traefik
 {
-    public class TraefikWhitelistYamlRepository : ISchemaRepository
+    public class YamlRepository : ISchemaRepository
     {
         private readonly string _yamlPath;
 
@@ -13,11 +13,11 @@ namespace IWMM.Services.Impl.Traefik
 
         private readonly ISerializer _yamlSerializer;
 
-        private readonly ILogger<TraefikWhitelistYamlRepository> _logger;
+        private readonly ILogger<YamlRepository> _logger;
 
-        public TraefikWhitelistYamlRepository(
+        public YamlRepository(
             IDeserializer deserializer, 
-            ISerializer serializer, ILogger<TraefikWhitelistYamlRepository> logger)
+            ISerializer serializer, ILogger<YamlRepository> logger)
         {
             _yamlDeserializer = deserializer;
 

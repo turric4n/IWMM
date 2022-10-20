@@ -7,9 +7,11 @@
             IpWhiteListSettings = new List<IpWhiteListSettings>();
             Entries = new List<Entry>();
             IpStrategyExcludedEntries = new List<ExcludedEntries>();
+            AdditionalTraefikPlainFileSettingsPaths = new List<string>();
         }
 
         public List<IpWhiteListSettings> IpWhiteListSettings { get; set; }
+        public List<string> AdditionalTraefikPlainFileSettingsPaths { get; set; }
         public List<Entry> Entries { get; set; }
         public List<ExcludedEntries> IpStrategyExcludedEntries { get; set; }
         public string DatabasePath { get; set; } = @"iwmm.db";

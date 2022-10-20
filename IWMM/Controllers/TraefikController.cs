@@ -21,6 +21,7 @@ namespace IWMM.Controllers
         private readonly Func<SchemaType, IEntriesToSchemaAdaptor> _schemaAdaptorLocator;
         private readonly IEntryRepository _entryRepository;
         private readonly ISerializer _serializer;
+        private readonly ISchemaMerger _schemaMerger;
 
         public TraefikController(IHostEnvironment hostEnvironment,
             IOptionsSnapshot<MainSettings> optionsSnapshot,
@@ -28,7 +29,8 @@ namespace IWMM.Controllers
             IFqdnResolver fqdnResolver,
             Func<SchemaType, ISchemaRepository> schemaRepositoryLocator,
             Func<SchemaType, IEntriesToSchemaAdaptor> schemaAdaptorLocator,
-            IEntryRepository entryRepository, ISerializer serializer)
+            IEntryRepository entryRepository, ISerializer serializer,
+            ISchemaMerger schemaMerger)
         {
             _hostEnvironment = hostEnvironment;
             _optionsSnapshot = optionsSnapshot;
@@ -37,6 +39,7 @@ namespace IWMM.Controllers
             _schemaAdaptorLocator = schemaAdaptorLocator;
             _entryRepository = entryRepository;
             _serializer = serializer;
+            _schemaMerger = schemaMerger;
         }
 
         private ISchemaRepository GetSchemaRepository(SchemaType schema)
@@ -71,8 +74,6 @@ namespace IWMM.Controllers
 
             var whitelistSettings = _optionsSnapshot.Value.IpWhiteListSettings;
 
-            if (whitelistSettings.Count == 0) return Ok("");
-
             var entryBooks = new List<EntryBook>();
 
             var schemaAdaptor = GetSchemaAdaptor(SchemaType.TraefikIpWhitelistMiddlewareFile);
@@ -99,11 +100,41 @@ namespace IWMM.Controllers
                 entryBooks.Add(entryBook);
             }
 
-            var schema = schemaAdaptor.GetSchema(entryBooks);
+            var additionalFileSchemas = GetAdditionalFileSchemas();
 
-            var schemaYaml = _serializer.Serialize(schema).ToString();
+            if (entryBooks.Count > 0)
+            {
+                var schema = schemaAdaptor.GetSchema(entryBooks);
+
+                additionalFileSchemas.Add(schema);
+            }
+
+            var merged = _schemaMerger.Merge(additionalFileSchemas);
+
+            var schemaYaml = _serializer.Serialize(merged).ToString();
 
             return Ok(schemaYaml);
+        }
+
+        private List<dynamic> GetAdditionalFileSchemas()
+        {
+            var result = new List<dynamic>();
+
+            var repository = GetSchemaRepository(SchemaType.TraefikPlain);
+
+            foreach (var additionalSettingsPath in _optionsSnapshot.Value.AdditionalTraefikPlainFileSettingsPaths)
+            {
+                try
+                {
+                    result.Add(repository.Load(additionalSettingsPath));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error while loading additional config file -> {additionalSettingsPath}", ex.Message);
+                }
+            }
+
+            return result;
         }
     }
 }

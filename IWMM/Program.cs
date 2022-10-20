@@ -51,14 +51,16 @@ builder.WebHost
 
         services.AddTransient<EntriesToTraefikSchemaAdaptor>();
 
-        services.AddTransient<TraefikWhitelistYamlRepository>();
+        services.AddTransient<YamlRepository>();
 
         services.AddTransient<Func<SchemaType, ISchemaRepository>>(f => s =>
         {
             switch (s)
             {
                 case SchemaType.TraefikIpWhitelistMiddlewareFile:
-                    return f.GetService<TraefikWhitelistYamlRepository>();
+                    return f.GetService<YamlRepository>();
+                case SchemaType.TraefikPlain:
+                    return f.GetService<YamlRepository>();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(s), s, null);
             }
