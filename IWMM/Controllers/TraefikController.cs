@@ -126,7 +126,11 @@ namespace IWMM.Controllers
             {
                 try
                 {
-                    result.Add(repository.Load(additionalSettingsPath));
+                    var files = Directory.GetFiles(additionalSettingsPath);
+                    foreach (var file in files)
+                    {
+                        result.Add(repository.Load(file));
+                    }
                 }
                 catch (Exception ex)
                 {

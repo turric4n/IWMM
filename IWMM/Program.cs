@@ -53,6 +53,8 @@ builder.WebHost
 
         services.AddTransient<YamlRepository>();
 
+        services.AddTransient<ISchemaMerger, SchemaMerger>();
+
         services.AddTransient<Func<SchemaType, ISchemaRepository>>(f => s =>
         {
             switch (s)
