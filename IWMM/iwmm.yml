@@ -31,8 +31,10 @@ Logging:
   LogLevel:
     Default: Information
 Serilog:
+  Using: 
+    - Serilog.Sinks.Console  
   WriteTo:
   - Name: Console
     Args:
       theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme::Code, Serilog.Sinks.Console
-      outputTemplate: "[{Timestamp:dd-MM-y HH:mm:ss} ({Level:u3})] {Message:lj} <s:{SourceContext}>{NewLine}{Exception}"
+      outputTemplate: "[{Timestamp:dd-MM-y HH:mm:ss} ({Level:u3})] {Message:lj} <{SourceContext} - {ThreadName} - ID : {ThreadId}>{NewLine}{Exception}"

@@ -29,8 +29,6 @@ builder.WebHost
 
     .ConfigureAppConfiguration((builderContext, config) =>
     {
-        var env = builderContext.HostingEnvironment;
-
         config
             .AddYamlFile(commandLineParams.ConfigFile, optional: false, reloadOnChange: true);
     })
@@ -41,6 +39,7 @@ builder.WebHost
             .ReadFrom.Configuration(builder.Configuration)
             .Enrich.FromLogContext()
             .CreateLogger();
+
         builder.Logging.ClearProviders();
         builder.Logging.AddSerilog(logger);
 
@@ -93,8 +92,3 @@ var app = builder
 app.MapControllers();
 
 app.Run();
-
-//if (commandLineParams.WebHost)
-//{
-
-//}
