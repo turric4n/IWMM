@@ -27,3 +27,12 @@
   IpStrategyExcludedEntries:
     - Name: Balancer1
       Ips: 192.168.180.212,192.168.180.212,192.168.83.212,192.168.180.44    
+Logging:
+  LogLevel:
+    Default: Information
+Serilog:
+  WriteTo:
+  - Name: Console
+    Args:
+      theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme::Code, Serilog.Sinks.Console
+      outputTemplate: "[{Timestamp:dd-MM-y HH:mm:ss} ({Level:u3})] {Message:lj} <s:{SourceContext}>{NewLine}{Exception}"
