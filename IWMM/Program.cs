@@ -7,8 +7,8 @@ using IWMM.Services.Abstractions;
 using IWMM.Services.Impl.Network;
 using IWMM.Services.Impl.Traefik;
 using IWMM.Settings;
-using QuickLogger.Extensions.NetCore;
 using System.Reflection;
+using Serilog;
 
 var loggerName = Assembly.GetExecutingAssembly()?.GetName()?.Name;
 
@@ -37,7 +37,12 @@ builder.WebHost
 
     .ConfigureServices((hostContext, services) =>
     {
-        services.AddQuickLogger();
+        var logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration)
+            .Enrich.FromLogContext()
+            .CreateLogger();
+        builder.Logging.ClearProviders();
+        builder.Logging.AddSerilog(logger);
 
         services.AddControllers();
 

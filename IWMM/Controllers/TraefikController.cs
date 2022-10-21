@@ -3,7 +3,6 @@ using IWMM.Services.Abstractions;
 using IWMM.Settings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using QuickLogger.NetStandard;
 using YamlDotNet.Serialization;
 using Entry = IWMM.Entities.Entry;
 
@@ -14,7 +13,6 @@ namespace IWMM.Controllers
     [Route("[controller]")]
     public class TraefikController : Controller
     {
-        private readonly IHostEnvironment _hostEnvironment;
         private readonly IOptionsSnapshot<MainSettings> _optionsSnapshot;
         private readonly ILogger<TraefikController> _logger;
         private readonly Func<SchemaType, ISchemaRepository> _schemaRepositoryLocator;
@@ -32,7 +30,6 @@ namespace IWMM.Controllers
             IEntryRepository entryRepository, ISerializer serializer,
             ISchemaMerger schemaMerger)
         {
-            _hostEnvironment = hostEnvironment;
             _optionsSnapshot = optionsSnapshot;
             _logger = logger;
             _schemaRepositoryLocator = schemaRepositoryLocator;
