@@ -38,6 +38,8 @@ builder.WebHost
         var logger = new LoggerConfiguration()
             .ReadFrom.Configuration(builder.Configuration)
             .Enrich.FromLogContext()
+            .Enrich.WithThreadId()
+            .Enrich.WithThreadName()
             .CreateLogger();
 
         builder.Logging.ClearProviders();

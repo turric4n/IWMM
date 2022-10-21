@@ -1,0 +1,11 @@
+http:
+  routers:
+    bla_bla:
+      rule: Host(`blabla.com`)
+      service: bla
+  services:
+    bla_bla:
+      loadbalancer:
+        servers:
+        - url: http://blabla:2291
+        passHostHeader: true

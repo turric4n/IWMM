@@ -8,13 +8,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="camelcase.yml" />
     <None Remove="first.yml" />
     <None Remove="second.yml" />
+    <None Remove="validcamelcase.yml" />
     <None Remove="validmerged.yml" />
     <None Remove="validmerged_with_middlewares.yml" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="validcamelcase.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="camelcase.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="first.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

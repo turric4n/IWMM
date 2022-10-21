@@ -87,6 +87,21 @@ namespace IWMM.Tests.Integration
         }
 
         [Test]
+        public void Given_Valid_Traefik_Schema_With_Underscore_Should_Serialized_Into_Yaml_Without_CamelCase_Behaviour()
+        {
+            //Arrange
+            var camelcasefilename = "camelcase.yml";
+            var validcamelcase = File.ReadAllText("validcamelcase.yml");
+
+            //Act
+            var underScoreSchema = _yamelYamlRepository.Load(camelcasefilename);
+            var serializedYaml = _yamelYamlRepository.Serialize(underScoreSchema);
+
+            //Assert
+            Assert.AreEqual(validcamelcase, serializedYaml);
+        }
+
+        [Test]
         public void Given_Valid_Traefik_Schema_Should_Serialized_Into_Yaml()
         {
             //Arrange
