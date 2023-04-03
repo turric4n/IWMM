@@ -3,6 +3,7 @@ using IWMM.Entities;
 using IWMM.Services.Abstractions;
 using IWMM.Settings;
 using Microsoft.Extensions.Options;
+using Serilog.Enrichers;
 using Entry = IWMM.Entities.Entry;
 
 namespace IWMM.Core
@@ -126,6 +127,43 @@ namespace IWMM.Core
             }
         }
 
+        private List<string> GetResolvedFqdn(string fqdn)
+        {
+            var ips = new List<string>();
+            foreach (var entryFqdn in fqdn.Split(','))
+            {
+                var resolvedIp = _fqdnResolver.GetIpAddressAsync(entryFqdn).Result;
+                ips.Add(resolvedIp);
+            }
+            return ips;
+        }
+
+        private List<string> GetResolvedIpsFromEntry(Settings.Entry entry)
+        {
+            var plainIps = !string.IsNullOrEmpty(entry.Ips) ? entry.Ips.Split(',').ToList() : new List<string>();
+
+            var resolvedFqdn = !string.IsNullOrEmpty(entry.Fqdn) ? GetResolvedFqdn(entry.Fqdn) : new List<string>();
+
+            plainIps.AddRange(resolvedFqdn);
+
+            if (!string.IsNullOrEmpty(entry.Groups))
+            {
+                var listGroup = entry.Groups.Split(',');
+                foreach (var groupName in listGroup)
+                {
+                    var gGroup = _optionsSnapshot.Value.Groups.FirstOrDefault(x => groupName.ToLowerInvariant() == x.Name.ToLowerInvariant());
+                    foreach (var entryname in gGroup.Entries)
+                    {
+                        var gEntry = _optionsSnapshot.Value.Entries
+                            .FirstOrDefault(x => entryname.ToLowerInvariant() == x.Name.ToLowerInvariant());
+                        if (gEntry == null) throw new Exception($"Entry {entryname} in Group {gGroup?.Name} not found");
+                        plainIps.AddRange(GetResolvedIpsFromEntry(gEntry));
+                    }
+                }
+            }
+            return plainIps;
+        }
+
         private void UpdateEntries()
         {
             var entries = _optionsSnapshot.Value.Entries;
@@ -134,13 +172,12 @@ namespace IWMM.Core
             {
                 try
                 {
-                    var plainIps = !string.IsNullOrEmpty(entry.Ips) ? entry.Ips.Split(',').ToList() : new List<string>();
+                    var plainIps = GetResolvedIpsFromEntry(entry);
 
                     var resolvedIp = string.Empty;
-
-                    if (!string.IsNullOrEmpty(entry.Fqdn))
+                    if (string.IsNullOrEmpty(entry.Ips) && string.IsNullOrEmpty(entry.Groups))
                     {
-                        resolvedIp = _fqdnResolver.GetIpAddressAsync(entry.Fqdn).Result;
+                        if (plainIps.Count > 0) resolvedIp = plainIps.First();
                     }
 
                     var dbEntry = _entryRepository.GetByName(entry.Name);
