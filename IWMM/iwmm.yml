@@ -19,14 +19,36 @@
         - Office
       ExcludedEntries:
         - Balancer1 
+    - SchemaType: TraefikIpWhitelistMiddlewareFile
+      TraefikMiddlewareSettings:
+        Name: test2GroupTestAllowed
+        FilePath: "test2Allowed.yml"        
+      AllowedEntries:
+        - AllDevelopers
+      ExcludedEntries:
+        - Balancer1 
   Entries:
     - Name: Test1
       Fqdn: test.com
     - Name: Office
       Fqdn: www.office.com
+    - Name: AllDevelopers
+      Groups: Group1,Group2
+    - Name: Google
+      Ips: 8.8.8.8
+    - Name: Microsoft
+      Fqdn: www.microsoft.com
   IpStrategyExcludedEntries:
     - Name: Balancer1
-      Ips: 192.168.180.212,192.168.180.212,192.168.83.212,192.168.180.44    
+      Ips: 192.168.180.212,192.168.180.212,192.168.83.212,192.168.180.44 
+  Groups:
+    - Name: Group1
+      Entries:
+        - Microsoft
+        - Google
+    - Name: Group2
+      Entries:
+        - Office
 Logging:
   LogLevel:
     Default: Information
