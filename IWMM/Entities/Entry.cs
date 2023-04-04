@@ -16,7 +16,6 @@ namespace IWMM.Entities
         public int Id { get; set; }
         public string Name { get; set; }
         public string Fqdn { get; set; }
-        public string Groups { get; set; }
         public List<string> PlainIps { get; set; }
         public string CurrentIp { get; set; }
         public string PreviousIp { get; set; }

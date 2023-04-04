@@ -33,14 +33,14 @@ namespace IWMM.Services.Impl.Traefik
                     {
                         whitelist.sourceRange.Add(entry.CurrentIp);
                     }
-                    
-                    foreach (var ip in entry.PlainIps)
+
+                    foreach (var ip in entry.PlainIps.Where(ip => ip != entry.CurrentIp))
                     {
                         whitelist.sourceRange.Add(ip);
                     }
                 }
 
-                if (entryBook.MiddlewareExcludedEntries.Any())
+                if (!entryBook.MiddlewareExcludedEntries.Any()) continue;
                 {
                     whitelist.ipStrategy = new ExpandoObject() as IDictionary<string, object>;
 

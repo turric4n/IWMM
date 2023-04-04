@@ -23,7 +23,7 @@ namespace IWMM.Services.Impl.Network
 
                 var gotIp = gotIps
                     .FirstOrDefault()
-                    .ToString();
+                    ?.ToString();
 
                 return gotIp;
             }

@@ -36,6 +36,10 @@ namespace IWMM.Repositories
                 _entries.Insert(entry);
                 _logger.LogInformation($"Inserted entry into database -> { entry.Name }");
             }
+            else
+            {
+                _logger.LogInformation($"Updated entry into database -> {entry.Name}");
+            }
 
             _entries.EnsureIndex(x => x.Name);
         }

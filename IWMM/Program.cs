@@ -8,6 +8,7 @@ using IWMM.Services.Impl.Network;
 using IWMM.Services.Impl.Traefik;
 using IWMM.Settings;
 using System.Reflection;
+using IWMM.Services.Impl.Facade;
 using Serilog;
 
 var loggerName = Assembly.GetExecutingAssembly()?.GetName()?.Name;
@@ -54,6 +55,8 @@ builder.WebHost
         services.AddTransient<IFqdnResolver, FqdnResolver>();
 
         services.AddSingleton<IEntryRepository, LiteDbEntryRepository>();
+
+        services.AddSingleton<ISettingsToSchemaFacade, SettingsToSchemaFacade>();
 
         services.AddTransient<EntriesToTraefikSchemaAdaptor>();
 

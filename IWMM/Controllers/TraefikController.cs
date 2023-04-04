@@ -1,5 +1,6 @@
 ﻿using IWMM.Entities;
 using IWMM.Services.Abstractions;
+using IWMM.Services.Impl.Facade;
 using IWMM.Settings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -13,47 +14,25 @@ namespace IWMM.Controllers
     [Route("[controller]")]
     public class TraefikController : Controller
     {
+        private readonly ISettingsToSchemaFacade _settingsToSchemaFacade;
         private readonly IOptionsSnapshot<MainSettings> _optionsSnapshot;
         private readonly ILogger<TraefikController> _logger;
         private readonly Func<SchemaType, ISchemaRepository> _schemaRepositoryLocator;
         private readonly Func<SchemaType, IEntriesToSchemaAdaptor> _schemaAdaptorLocator;
         private readonly IEntryRepository _entryRepository;
-        private readonly ISerializer _serializer;
         private readonly ISchemaMerger _schemaMerger;
 
         public TraefikController(IHostEnvironment hostEnvironment,
+            ISettingsToSchemaFacade settingsToSchemaFacade,
             IOptionsSnapshot<MainSettings> optionsSnapshot,
             ILogger<TraefikController> logger,
-            IFqdnResolver fqdnResolver,
-            Func<SchemaType, ISchemaRepository> schemaRepositoryLocator,
-            Func<SchemaType, IEntriesToSchemaAdaptor> schemaAdaptorLocator,
-            IEntryRepository entryRepository, ISerializer serializer,
             ISchemaMerger schemaMerger)
         {
+            _settingsToSchemaFacade = settingsToSchemaFacade;
             _optionsSnapshot = optionsSnapshot;
             _logger = logger;
-            _schemaRepositoryLocator = schemaRepositoryLocator;
-            _schemaAdaptorLocator = schemaAdaptorLocator;
-            _entryRepository = entryRepository;
-            _serializer = serializer;
             _schemaMerger = schemaMerger;
         }
-
-        private ISchemaRepository GetSchemaRepository(SchemaType schema)
-        {
-            return _schemaRepositoryLocator(schema);
-        }
-
-        private IEntriesToSchemaAdaptor GetSchemaAdaptor(SchemaType schema)
-        {
-            return _schemaAdaptorLocator(schema);
-        }
-
-        private IEnumerable<Entry> GetEntriesByNames(IEnumerable<string> list)
-        {
-            return _entryRepository.FindByNames(list);
-        }
-
         private string GetOptionalMiddlewareName(IpWhiteListSettings whiteListSettings, SchemaType schema)
         {
             switch (schema)
@@ -71,30 +50,19 @@ namespace IWMM.Controllers
 
             var whitelistSettings = _optionsSnapshot.Value.IpWhiteListSettings;
 
+            var excludedSettings = _optionsSnapshot.Value.IpStrategyExcludedEntries;
+
+            var groups = _optionsSnapshot.Value.Groups;
+
+            var entries = _optionsSnapshot.Value.Entries;
+
             var entryBooks = new List<EntryBook>();
 
-            var schemaAdaptor = GetSchemaAdaptor(SchemaType.TraefikIpWhitelistMiddlewareFile);
+            var schemaAdaptor = _settingsToSchemaFacade.GetSchemaAdaptor(SchemaType.TraefikIpWhitelistMiddlewareFile);
 
             foreach (var whitelistSetting in whitelistSettings)
             {
-                if (whitelistSetting.AllowedEntries.Count == 0) break;
-
-                var entries = whitelistSetting.AllowedEntries.Count > 0
-                    ? GetEntriesByNames(whitelistSetting.AllowedEntries)
-                    : new List<Entry>();
-
-                var excludedEntries =
-                    _optionsSnapshot
-                        .Value
-                        .IpStrategyExcludedEntries
-                        .Where(x => whitelistSetting.ExcludedEntries.Any(n =>
-                            n.ToLowerInvariant() == x.Name.ToLowerInvariant()));
-
-                var middlewareName = GetOptionalMiddlewareName(whitelistSetting, whitelistSetting.SchemaType);
-
-                var entryBook = new EntryBook(middlewareName, entries, excludedEntries);
-
-                entryBooks.Add(entryBook);
+                entryBooks.Add(_settingsToSchemaFacade.GenerateEntryBook(whitelistSetting, excludedSettings, groups, entries));
             }
 
             var additionalFileSchemas = GetAdditionalFileSchemas();
@@ -108,7 +76,9 @@ namespace IWMM.Controllers
 
             var merged = _schemaMerger.Merge(additionalFileSchemas);
 
-            var schemaYaml = _serializer.Serialize(merged).ToString();
+            var repository = _settingsToSchemaFacade.GetSchemaRepository(SchemaType.TraefikIpWhitelistMiddlewareFile);
+
+            var schemaYaml = repository.Serialize(merged).ToString();
 
             return Ok(schemaYaml);
         }
@@ -117,17 +87,15 @@ namespace IWMM.Controllers
         {
             var result = new List<dynamic>();
 
-            var repository = GetSchemaRepository(SchemaType.TraefikPlain);
+            var repository = _settingsToSchemaFacade.GetSchemaRepository(SchemaType.TraefikPlain);
 
             foreach (var additionalSettingsPath in _optionsSnapshot.Value.AdditionalTraefikPlainFileSettingsPaths)
             {
                 try
                 {
                     var files = Directory.GetFiles(additionalSettingsPath);
-                    foreach (var file in files)
-                    {
-                        result.Add(repository.Load(file));
-                    }
+
+                    result.AddRange(files.Select(file => repository.Load(file)));
                 }
                 catch (Exception ex)
                 {
