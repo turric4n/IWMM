@@ -154,10 +154,17 @@ namespace IWMM.Core
                     var gGroup = _optionsSnapshot.Value.Groups.FirstOrDefault(x => groupName.ToLowerInvariant() == x.Name.ToLowerInvariant());
                     foreach (var entryname in gGroup.Entries)
                     {
-                        var gEntry = _optionsSnapshot.Value.Entries
-                            .FirstOrDefault(x => entryname.ToLowerInvariant() == x.Name.ToLowerInvariant());
-                        if (gEntry == null) throw new Exception($"Entry {entryname} in Group {gGroup?.Name} not found");
-                        plainIps.AddRange(GetResolvedIpsFromEntry(gEntry));
+                        try
+                        {
+                            var gEntry = _optionsSnapshot.Value.Entries
+                                .FirstOrDefault(x => entryname.ToLowerInvariant() == x.Name.ToLowerInvariant());
+                            if (gEntry == null) throw new Exception($"Entry {entryname} in Group {gGroup?.Name} not found");
+                            plainIps.AddRange(GetResolvedIpsFromEntry(gEntry));
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError(e.Message);
+                        }
                     }
                 }
             }
