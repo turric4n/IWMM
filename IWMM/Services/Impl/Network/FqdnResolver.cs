@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Sockets;
 using IWMM.Services.Abstractions;
 using IWMM.Settings;
 using Microsoft.Extensions.Logging;
@@ -19,11 +20,24 @@ namespace IWMM.Services.Impl.Network
         {
             try
             {
-                var gotIps = await Dns.GetHostAddressesAsync(fqdn);
+                var gotIps = await Dns.GetHostAddressesAsync(fqdn, AddressFamily.InterNetwork);
 
                 var gotIp = gotIps
                     .FirstOrDefault()
                     ?.ToString();
+
+                if (gotIp == null)
+                {
+                    gotIps = await Dns.GetHostAddressesAsync(fqdn, AddressFamily.InterNetworkV6);
+                    gotIp = gotIps
+                        .FirstOrDefault()
+                        ?.ToString();
+                }
+
+                if (gotIp.Contains("::ffff:"))
+                {
+                    gotIp = gotIp.Replace("::ffff:", "");
+                }
 
                 return gotIp;
             }
