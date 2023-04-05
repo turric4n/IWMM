@@ -9,7 +9,12 @@ namespace IWMM.Services.Impl.Network
 {
     public class FqdnResolver : IFqdnResolver
     {
+        private const string FqdnResolverExceptionMessage = "Couldn't resolve FQDN : ";
+        private const string IpV6SubnetPrefix = "::ffff:";
+
+
         private readonly ILogger<FqdnResolver> _logger;
+
 
         public FqdnResolver(ILogger<FqdnResolver> logger)
         {
@@ -34,16 +39,16 @@ namespace IWMM.Services.Impl.Network
                         ?.ToString();
                 }
 
-                if (gotIp.Contains("::ffff:"))
+                if (gotIp.Contains(IpV6SubnetPrefix))
                 {
-                    gotIp = gotIp.Replace("::ffff:", "");
+                    gotIp = gotIp.Replace(IpV6SubnetPrefix, string.Empty);
                 }
 
                 return gotIp;
             }
             catch (Exception e)
             {
-                var message = $"Couldn't resolve {fqdn} -> {e.Message}";
+                var message = $"{FqdnResolverExceptionMessage} {fqdn} -> {e.Message}";
 
                 _logger.LogError(message);
 
