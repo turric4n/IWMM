@@ -11,9 +11,11 @@ namespace IWMM.Entities
         public Entry()
         {
             PlainIps = new List<string>();
+            Dn = "undefined";
         }
 
         public int Id { get; set; }
+        public string Dn { get; set; }
         public string Name { get; set; }
         public string Fqdn { get; set; }
         public List<string> PlainIps { get; set; }

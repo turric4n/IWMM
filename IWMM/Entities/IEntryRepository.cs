@@ -12,5 +12,6 @@ namespace IWMM.Entities
         IEnumerable<Entry> GetAll();
         Entry GetByName(string name);
         IEnumerable<Entry> FindByNames(IEnumerable<string> names);
+        IEnumerable<Entry> FindByDn(string dn);
     }
 }

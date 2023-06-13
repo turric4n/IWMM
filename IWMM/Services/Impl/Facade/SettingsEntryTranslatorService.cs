@@ -11,6 +11,7 @@ namespace IWMM.Services.Impl.Facade
         private readonly IFqdnResolver _fqdnResolver;
         private readonly Func<SchemaType, ISchemaRepository> _schemaRepositoryLocator;
         private readonly Func<SchemaType, IEntriesToSchemaAdaptor> _schemaAdaptorLocator;
+        private readonly ILdapService _ldapService;
         private readonly IEntryRepository _entryRepository;
 
         public SettingsToSchemaFacade(IHostEnvironment hostEnvironment,
@@ -18,16 +19,18 @@ namespace IWMM.Services.Impl.Facade
             IFqdnResolver fqdnResolver,
             Func<SchemaType, ISchemaRepository> schemaRepositoryLocator,
             Func<SchemaType, IEntriesToSchemaAdaptor> schemaAdaptorLocator,
+            ILdapService ldapService,
             IEntryRepository entryRepository)
         {
             _logger = logger;
             _fqdnResolver = fqdnResolver;
             _schemaRepositoryLocator = schemaRepositoryLocator;
             _schemaAdaptorLocator = schemaAdaptorLocator;
+            _ldapService = ldapService;
             _entryRepository = entryRepository;
         }
 
-        private List<string> MergeAllowedEntries(IpWhiteListSettings whitelistSetting, List<Group> groups, List<Settings.Entry> entries)
+        private List<string> MergeAllowedEntries(TraefikIpWhiteListSettings whitelistSetting, List<Group> groups, List<Settings.Entry> entries)
         {
             var whitelistGroupEntryNames = groups
                 .Where(group => whitelistSetting.AllowedEntries.Contains(group.Name))
@@ -73,6 +76,7 @@ namespace IWMM.Services.Impl.Facade
                     dbEntry.PlainIps = plainIps;
                     dbEntry.Fqdn = entry.Fqdn;
                     dbEntry.Name = entry.Name;
+                    dbEntry.Dn = "undefined";
 
                     _entryRepository.AddOrUpdate(dbEntry);
                 }
@@ -83,7 +87,34 @@ namespace IWMM.Services.Impl.Facade
             }
         }
 
-        public EntryBook GenerateEntryBook(IpWhiteListSettings whitelistSetting, List<ExcludedEntries> excludedEntriesSetting, List<Group> entryGroups, List<Settings.Entry> entries)
+        public void UpdateLdapEntriesAndSaveIntoRepository()
+        {
+            var entries = _ldapService.RetrieveEntries("(objectClass=Computer)");
+
+            foreach (var entry in entries)
+            {
+                try
+                {
+                    var plainIps = GetResolvedIpsFromEntry(entry);
+
+                    var dbEntry = _entryRepository.GetByName(entry.Name);
+                    dbEntry.PreviousIp = dbEntry.CurrentIp;
+                    dbEntry.CurrentIp = plainIps.First();
+                    dbEntry.PlainIps = plainIps;
+                    dbEntry.Fqdn = entry.Fqdn;
+                    dbEntry.Name = entry.Name;
+                    dbEntry.Dn = entry.Dn;
+
+                    _entryRepository.AddOrUpdate(dbEntry);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"Error while processing entry -> {entry.Name} {entry.Fqdn}", e);
+                }
+            }
+        }
+
+        public EntryBook GenerateEntryBook(TraefikIpWhiteListSettings whitelistSetting, List<ExcludedEntries> excludedEntriesSetting, List<Group> entryGroups, List<Settings.Entry> entries)
         {
             if (!entries.Any() || whitelistSetting.AllowedEntries.Count < 1) return null;
 
@@ -126,7 +157,7 @@ namespace IWMM.Services.Impl.Facade
             return schemaAdaptor.GetSchema(entryBooks);
         }
 
-        private string GetOptionalMiddlewareName(IpWhiteListSettings whiteListSettings, SchemaType schema)
+        private string GetOptionalMiddlewareName(TraefikIpWhiteListSettings whiteListSettings, SchemaType schema)
         {
             switch (schema)
             {
@@ -137,7 +168,7 @@ namespace IWMM.Services.Impl.Facade
             }
         }
 
-        private string GetOptionalPath(IpWhiteListSettings whiteListSettings, SchemaType schema)
+        private string GetOptionalPath(TraefikIpWhiteListSettings whiteListSettings, SchemaType schema)
         {
             switch (schema)
             {
@@ -176,6 +207,13 @@ namespace IWMM.Services.Impl.Facade
             }
 
             return plainIps;
+        }
+
+        private List<string> GetResolvedIpsFromEntry(Entry entry)
+        {
+            var resolvedFqdn = !string.IsNullOrEmpty(entry.Fqdn) ? GetResolvedFqdn(entry.Fqdn) : new List<string>();
+
+            return resolvedFqdn;
         }
     }
 }

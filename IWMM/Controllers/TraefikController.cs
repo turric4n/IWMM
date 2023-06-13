@@ -33,7 +33,7 @@ namespace IWMM.Controllers
             _logger = logger;
             _schemaMerger = schemaMerger;
         }
-        private string GetOptionalMiddlewareName(IpWhiteListSettings whiteListSettings, SchemaType schema)
+        private string GetOptionalMiddlewareName(TraefikIpWhiteListSettings whiteListSettings, SchemaType schema)
         {
             switch (schema)
             {
@@ -48,7 +48,7 @@ namespace IWMM.Controllers
         public IActionResult Index()
         {
 
-            var whitelistSettings = _optionsSnapshot.Value.IpWhiteListSettings;
+            var whitelistSettings = _optionsSnapshot.Value.TraefikIpWhiteListSettings;
 
             var excludedSettings = _optionsSnapshot.Value.IpStrategyExcludedEntries;
 

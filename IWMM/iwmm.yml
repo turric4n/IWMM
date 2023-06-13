@@ -1,4 +1,9 @@
 ﻿MainSettings:
+  FqdnUpdateJobSeconds: 60
+  UseLdap: true
+  LdapUpdateJobSeconds: 60
+  BaseLdapUri: ldap://ldapserver:389/
+  LdapScavengeScope: OU=*,OU=*,DC=domain,DC=local
   AdditionalTraefikPlainFileSettingsPaths:
     - "*.yml"
   IpWhiteListSettings:

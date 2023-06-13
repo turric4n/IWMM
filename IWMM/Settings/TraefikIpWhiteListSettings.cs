@@ -1,8 +1,8 @@
 ﻿namespace IWMM.Settings
 {
-    public class IpWhiteListSettings
+    public class TraefikIpWhiteListSettings
     {
-        public IpWhiteListSettings()
+        public TraefikIpWhiteListSettings()
         {
             AllowedEntries = new List<string>();
             ExcludedEntries = new List<string>();

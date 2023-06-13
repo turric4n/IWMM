@@ -8,7 +8,9 @@ using IWMM.Services.Impl.Network;
 using IWMM.Services.Impl.Traefik;
 using IWMM.Settings;
 using System.Reflection;
+using FluentScheduler;
 using IWMM.Services.Impl.Facade;
+using IWMM.Services.Impl.Ldap;
 using Serilog;
 
 var loggerName = Assembly.GetExecutingAssembly()?.GetName()?.Name;
@@ -62,7 +64,26 @@ builder.WebHost
 
         services.AddTransient<YamlRepository>();
 
+        services.AddSingleton<LdapJob>();
+
+        services.AddSingleton<FqdnJob>();
+
+        services.AddTransient<ILdapService, LdapService>();
+
         services.AddTransient<ISchemaMerger, SchemaMerger>();
+
+        services.AddTransient<Func<JobType, IJob>>(f => jobType =>
+        {
+            switch (jobType)
+            {
+                case JobType.Fqdn:
+                    return f.GetService<FqdnJob>();
+                case JobType.Ldap:
+                    return f.GetService<LdapJob>();
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(jobType), jobType, null);
+            }
+        });
 
         services.AddTransient<Func<SchemaType, ISchemaRepository>>(f => s =>
         {

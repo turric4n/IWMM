@@ -60,6 +60,11 @@ namespace IWMM.Repositories
             //return _entries.Find(x => names.Any(n => n.ToLowerInvariant() == x.Name.ToLowerInvariant()));
         }
 
+        public IEnumerable<Entry> FindByDn(string dn)
+        {
+            return _entries.FindAll().Where(entry => entry.Dn.ToLowerInvariant().Contains(dn.ToLowerInvariant()));
+        }
+
         public void Dispose()
         {
             _liteDatabase.Dispose();

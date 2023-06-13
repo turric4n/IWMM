@@ -3,6 +3,7 @@
     public enum SchemaType
     {
         TraefikIpWhitelistMiddlewareFile,
-        TraefikPlain
+        TraefikPlain,
+        OpnSense
     }
 }
