@@ -73,7 +73,7 @@ namespace IWMM.Services.Impl.Facade
                     var dbEntry = _entryRepository.GetByName(entry.Name);
                     dbEntry.PreviousIp = dbEntry.CurrentIp;
                     dbEntry.CurrentIp = resolvedIp;
-                    dbEntry.PlainIps = plainIps;
+                    dbEntry.AdditionalIps = plainIps;
                     dbEntry.Fqdn = entry.Fqdn;
                     dbEntry.Name = entry.Name;
                     dbEntry.Dn = "undefined";
@@ -100,7 +100,8 @@ namespace IWMM.Services.Impl.Facade
                     var dbEntry = _entryRepository.GetByName(entry.Name);
                     dbEntry.PreviousIp = dbEntry.CurrentIp;
                     dbEntry.CurrentIp = plainIps.First();
-                    dbEntry.PlainIps = plainIps;
+                    plainIps.Remove(dbEntry.CurrentIp);
+                    dbEntry.AdditionalIps = plainIps;
                     dbEntry.Fqdn = entry.Fqdn;
                     dbEntry.Name = entry.Name;
                     dbEntry.Dn = entry.Dn;
@@ -184,8 +185,8 @@ namespace IWMM.Services.Impl.Facade
             var ips = new List<string>();
             foreach (var entryFqdn in fqdn.Split(','))
             {
-                var resolvedIp = _fqdnResolver.GetIpAddressAsync(entryFqdn).Result;
-                ips.Add(resolvedIp);
+                var resolvedIps = _fqdnResolver.GetIpAddressesAsync(entryFqdn).Result;
+                ips.AddRange(resolvedIps);
             }
             return ips;
         }

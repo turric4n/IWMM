@@ -34,7 +34,7 @@ namespace IWMM.Services.Impl.Traefik
                         whitelist.sourceRange.Add(entry.CurrentIp);
                     }
 
-                    foreach (var ip in entry.PlainIps.Where(ip => ip != entry.CurrentIp))
+                    foreach (var ip in entry.AdditionalIps.Where(ip => ip != entry.CurrentIp))
                     {
                         whitelist.sourceRange.Add(ip);
                     }

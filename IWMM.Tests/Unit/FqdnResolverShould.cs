@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Castle.Core.Logging;
 using IWMM.Services.Abstractions;
@@ -24,9 +25,10 @@ namespace IWMM.Tests
         public async Task Given_Valid_Fqdn_String_Return_Ip_Address(string fqdn, string expectedIp)
         {
             //Act
-            var result = await fqdnResolver.GetIpAddressAsync(fqdn);
+            var result = await fqdnResolver.GetIpAddressesAsync(fqdn);
             //Assert
-            Assert.AreEqual(expectedIp, result);
+            //Assert list contains expected IP in the list
+            Assert.IsTrue(result.Contains(expectedIp));
         }
 
         [TestCase("test.")]
@@ -37,7 +39,7 @@ namespace IWMM.Tests
             //Act
             AsyncTestDelegate act = () =>
             {
-                return fqdnResolver.GetIpAddressAsync(fqdn);
+                return fqdnResolver.GetIpAddressesAsync(fqdn);
             };
 
             //Assert

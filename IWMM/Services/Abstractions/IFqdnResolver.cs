@@ -5,6 +5,6 @@ namespace IWMM.Services.Abstractions
 
     public interface IFqdnResolver
     {
-        Task<string> GetIpAddressAsync(string fqdn);
+        Task<IEnumerable<string>> GetIpAddressesAsync(string fqdn);
     }
 }

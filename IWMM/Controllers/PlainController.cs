@@ -16,11 +16,56 @@ namespace IWMM.Controllers
         }
 
         [HttpGet("ldap/{dn}")]
-        public string Index(string dn)
+        public string GetLdapOu(string dn)
         {
             var targetDn = dn.Replace(';', ',');
-            var entries = _entryRepository.FindByDn(targetDn).ToList();
-            var result = string.Join("\r\n", entries.Select(entry => entry.CurrentIp));
+
+            var entriesUnfiltered = _entryRepository
+                .FindByDn(targetDn)
+                .ToList();
+
+            var currentIpEntries = entriesUnfiltered
+                .Select(entry => entry.CurrentIp)
+                .ToList();
+
+            var additionIpEntries = entriesUnfiltered
+                .Select(entry => entry.AdditionalIps)
+                .ToList();
+
+            var allIpEntries = currentIpEntries
+                .Concat(additionIpEntries.SelectMany(x => x))
+                .Distinct()
+                .ToList();
+
+
+            var result = string.Join("\r\n", allIpEntries);
+
+            return result;
+        }
+
+        [HttpGet("ldapComputer/{computerName}")]
+        public string GetLdapComputer(string computerName)
+        {
+
+            var entriesUnfiltered = _entryRepository
+                .FindByNames(new []{computerName})
+                .ToList();
+
+            var currentIpEntries = entriesUnfiltered
+                .Select(entry => entry.CurrentIp)
+                .ToList();
+
+            var additionIpEntries = entriesUnfiltered
+                .Select(entry => entry.AdditionalIps)
+                .ToList();
+
+            var allIpEntries = currentIpEntries
+                .Concat(additionIpEntries.SelectMany(x => x))
+                .Distinct()
+                .ToList();
+
+            var result = string.Join("\r\n", allIpEntries);
+
             return result;
         }
     }
