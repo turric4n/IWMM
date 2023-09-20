@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Castle.Core.Logging;
+using FluentAssertions;
 using IWMM.Services.Abstractions;
 using IWMM.Services.Impl.Network;
 using Microsoft.Extensions.Logging;
@@ -45,6 +46,16 @@ namespace IWMM.Tests
             //Assert
 
             Assert.ThrowsAsync<FqdnResolverException>(act);
+        }
+
+        [TestCase("pc249", "192.168.200.18")]
+        public async Task Return_expectad_IP_Given_Valid_FQDN(string fqdn, string expectedIp)
+        {
+            //Act
+            var currentIp = await fqdnResolver.GetIpAddressesAsync(fqdn);    
+
+            //Assert            
+            currentIp.Should().Equal(expectedIp);
         }
     }
 }

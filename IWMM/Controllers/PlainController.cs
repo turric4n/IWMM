@@ -1,5 +1,6 @@
 ﻿using IWMM.Entities;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Net;
 
 namespace IWMM.Controllers
@@ -24,6 +25,10 @@ namespace IWMM.Controllers
                 .FindByDn(targetDn)
                 .ToList();
 
+            var previousIpEntries = entriesUnfiltered
+                .Select(entry => entry.PreviousIp)
+                .ToList();
+
             var currentIpEntries = entriesUnfiltered
                 .Select(entry => entry.CurrentIp)
                 .ToList();
@@ -34,13 +39,14 @@ namespace IWMM.Controllers
 
             var allIpEntries = currentIpEntries
                 .Concat(additionIpEntries.SelectMany(x => x))
+                .Concat(previousIpEntries)
                 .Distinct()
                 .ToList();
 
 
-            var result = string.Join("\r\n", allIpEntries);
+            var result = string.Join("\r\n", allIpEntries);            
 
-            return result;
+            return result;          
         }
 
         [HttpGet("ldapComputer/{computerName}")]
@@ -55,12 +61,17 @@ namespace IWMM.Controllers
                 .Select(entry => entry.CurrentIp)
                 .ToList();
 
+            var previousIpEntries = entriesUnfiltered
+                .Select(entry => entry.PreviousIp)
+                .ToList();
+
             var additionIpEntries = entriesUnfiltered
                 .Select(entry => entry.AdditionalIps)
                 .ToList();
 
             var allIpEntries = currentIpEntries
                 .Concat(additionIpEntries.SelectMany(x => x))
+                .Concat(previousIpEntries)
                 .Distinct()
                 .ToList();
 

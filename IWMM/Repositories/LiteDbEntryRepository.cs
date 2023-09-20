@@ -31,15 +31,22 @@ namespace IWMM.Repositories
 
         public void AddOrUpdate(Entry entry)
         {
+            var changedIp = entry.CurrentIp != entry.PreviousIp;
+
+            if (entry.IpChanged)
+            {
+                _logger.LogInformation($"Entry IP changed -> {entry.Name}. CurrentIP : {entry.CurrentIp} - PreviousIP : {entry.PreviousIp}");
+            }
+
             if (!_entries.Update(entry))
             {
                 _entries.Insert(entry);
-                _logger.LogInformation($"Inserted entry into database -> { entry.Name }");
+                _logger.LogInformation($"Inserted entry into database -> { entry.Name }. CurrentIP : { entry.CurrentIp } - PreviousIP : { entry.PreviousIp }");
             }
             else
             {
-                _logger.LogInformation($"Updated entry into database -> {entry.Name}");
-            }
+                _logger.LogInformation($"Updated entry into database -> {entry.Name}. CurrentIP : {entry.CurrentIp} - PreviousIP : {entry.PreviousIp } ");
+            }            
 
             _entries.EnsureIndex(x => x.Name);
         }

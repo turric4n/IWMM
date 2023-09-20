@@ -34,8 +34,8 @@ namespace IWMM.Services.Impl.Facade
         {
             var whitelistGroupEntryNames = groups
                 .Where(group => whitelistSetting.AllowedEntries.Contains(group.Name))
-            .SelectMany(x => x.Entries)
-            .ToList();
+                .SelectMany(x => x.Entries)
+                .ToList();
 
             var whitelistSingleEntryNames = entries
                 .Where(singleEntry => whitelistSetting.AllowedEntries.Contains(singleEntry.Name) &&
@@ -71,11 +71,21 @@ namespace IWMM.Services.Impl.Facade
                     }
 
                     var dbEntry = _entryRepository.GetByName(entry.Name);
-                    dbEntry.PreviousIp = dbEntry.CurrentIp;
+
+                    var ipChanged = dbEntry.CurrentIp != resolvedIp;
+
+                    dbEntry.PreviousIp = ipChanged ? dbEntry.CurrentIp : dbEntry.PreviousIp;
+
+                    dbEntry.IpChanged = ipChanged;
+
                     dbEntry.CurrentIp = resolvedIp;
+
                     dbEntry.AdditionalIps = plainIps;
+
                     dbEntry.Fqdn = entry.Fqdn;
+
                     dbEntry.Name = entry.Name;
+
                     dbEntry.Dn = "undefined";
 
                     _entryRepository.AddOrUpdate(dbEntry);
@@ -98,12 +108,23 @@ namespace IWMM.Services.Impl.Facade
                     var plainIps = GetResolvedIpsFromEntry(entry);
 
                     var dbEntry = _entryRepository.GetByName(entry.Name);
-                    dbEntry.PreviousIp = dbEntry.CurrentIp;
-                    dbEntry.CurrentIp = plainIps.First();
-                    plainIps.Remove(dbEntry.CurrentIp);
+
+                    var firstPlainIp = plainIps.FirstOrDefault();
+
+                    var ipChanged = dbEntry.CurrentIp != firstPlainIp;
+
+                    dbEntry.PreviousIp = ipChanged ? dbEntry.CurrentIp : dbEntry.PreviousIp;
+
+                    dbEntry.CurrentIp = firstPlainIp;
+
+                    plainIps.Remove(firstPlainIp);
+
                     dbEntry.AdditionalIps = plainIps;
+
                     dbEntry.Fqdn = entry.Fqdn;
+
                     dbEntry.Name = entry.Name;
+
                     dbEntry.Dn = entry.Dn;
 
                     _entryRepository.AddOrUpdate(dbEntry);

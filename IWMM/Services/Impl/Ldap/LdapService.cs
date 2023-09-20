@@ -45,13 +45,11 @@ namespace IWMM.Services.Impl.Ldap
                 Console.WriteLine(e);
                 throw;
             }
-
-            return null;
         }
 
 
         public void Dispose()
-        {
+        {                       
             _ldapConnection.Dispose();
         }
     }

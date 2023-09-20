@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using IWMM.Services.Abstractions;
 using IWMM.Settings;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,12 @@ namespace IWMM.Services.Impl.Network
 {
     public class FqdnResolver : IFqdnResolver
     {
+        [DllImport("dnsapi.dll", EntryPoint = "DnsFlushResolverCache")]
+        static extern UInt32 DnsFlushResolverCache();
+
+        [DllImport("dnsapi.dll", EntryPoint = "DnsFlushResolverCacheEntry_A")]
+        public static extern int DnsFlushResolverCacheEntry(string hostName);
+
         private const string FqdnResolverExceptionMessage = "Couldn't resolve FQDN : ";
         private const string IpV6SubnetPrefix = "::ffff:";
 
@@ -25,6 +32,9 @@ namespace IWMM.Services.Impl.Network
         {
             try
             {
+                ServicePointManager.DnsRefreshTimeout = 0;
+                DnsFlushResolverCache();
+
                 var gotIps = await Dns.GetHostAddressesAsync(fqdn, AddressFamily.InterNetwork);
 
                 //convert list of IP addresses to array of string
