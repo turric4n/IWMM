@@ -1,27 +1,24 @@
-﻿using System.Net;
+﻿using IWMM.Services.Abstractions;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using IWMM.Services.Abstractions;
-using IWMM.Settings;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace IWMM.Services.Impl.Network
 {
     public class FqdnResolver : IFqdnResolver
     {
+#if Windows
         [DllImport("dnsapi.dll", EntryPoint = "DnsFlushResolverCache")]
         static extern UInt32 DnsFlushResolverCache();
 
         [DllImport("dnsapi.dll", EntryPoint = "DnsFlushResolverCacheEntry_A")]
         public static extern int DnsFlushResolverCacheEntry(string hostName);
+#endif
 
         private const string FqdnResolverExceptionMessage = "Couldn't resolve FQDN : ";
         private const string IpV6SubnetPrefix = "::ffff:";
 
-
         private readonly ILogger<FqdnResolver> _logger;
-
 
         public FqdnResolver(ILogger<FqdnResolver> logger)
         {
@@ -33,11 +30,13 @@ namespace IWMM.Services.Impl.Network
             try
             {
                 ServicePointManager.DnsRefreshTimeout = 0;
+#if Windows
                 DnsFlushResolverCache();
+#endif
 
                 var gotIps = await Dns.GetHostAddressesAsync(fqdn, AddressFamily.InterNetwork);
 
-                //convert list of IP addresses to array of string
+                // Convert list of IP addresses to array of string
                 var gotIp = gotIps
                     .Select(x => x.ToString())
                     .ToArray();
@@ -52,7 +51,7 @@ namespace IWMM.Services.Impl.Network
 
                 if (gotIp.Contains(IpV6SubnetPrefix))
                 {
-                    //remove IPv6 subnet prefix
+                    // Remove IPv6 subnet prefix
                     gotIp = gotIp
                         .Select(x => x.Replace(IpV6SubnetPrefix, string.Empty))
                         .ToArray();
