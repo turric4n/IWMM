@@ -88,10 +88,12 @@ The `LdapJob` class depends on the following services:
 
 The constructor initializes the `LdapJob` with the required dependencies.
 
+```csharp
 public LdapJob(ILogger<LdapJob> logger, IOptions<MainSettings> options, ISettingsToSchemaFacade settingsToSchemaFacade) : base(logger, options)
 {
     _settingsToSchemaFacade = settingsToSchemaFacade;
 }
+```
 
 ## SchemaType Enum
 
@@ -107,6 +109,7 @@ The `SchemaType` enum is defined in the `IWMM.Settings` namespace and is used to
 
 The `SchemaType` enum is defined as follows:
 
+```csharp
 namespace IWMM.Settings
 {
     public enum SchemaType
@@ -116,6 +119,7 @@ namespace IWMM.Settings
         OpnSense
     }
 }
+```
 
 ## OpnSenseIpWhiteListSettings
 
@@ -131,12 +135,13 @@ The `OpnSenseIpWhiteListSettings` class is used to configure the IP whitelist se
 
 The constructor initializes the `AllowedEntries` and `ExcludedEntries` properties.
 
+```csharp
 public OpnSenseIpWhiteListSettings()
 {
     AllowedEntries = new List<string>();
     ExcludedEntries = new List<string>();
 }
-
+```
 ## TraefikIpWhiteListSettings
 
 The `TraefikIpWhiteListSettings` class is used to configure the IP whitelist settings for Traefik middleware. It includes properties for allowed and excluded entries, as well as middleware-specific settings.
@@ -152,12 +157,14 @@ The `TraefikIpWhiteListSettings` class is used to configure the IP whitelist set
 
 The constructor initializes the `AllowedEntries`, `ExcludedEntries`, and `TraefikMiddlewareSettings` properties.
 
+```csharp
 public TraefikIpWhiteListSettings()
 {
     AllowedEntries = new List<string>();
     ExcludedEntries = new List<string>();
     TraefikMiddlewareSettings = new TraefikMiddlewareSettings();
 }
+```
 
 ## PlainController
 
