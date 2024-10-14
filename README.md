@@ -1,9 +1,11 @@
 # IWMM (IP Whitelist Middleware Manager)
+
 ## Useful tool to manage FQDN whitelisting rules for multiple webservers
 
 ## Dependencies
 
 The project uses the following dependencies:
+
 - Serilog for logging
 - Controllers for handling HTTP requests
 - YAML serializer/deserializer
@@ -14,6 +16,7 @@ The application settings are configured in the `MainSettings` section of the con
 
 ```csharp
 services.Configure<MainSettings>(hostContext.Configuration.GetSection("MainSettings"));
+```
 
 # Configuration Documentation
 
@@ -85,7 +88,6 @@ The `LdapJob` class depends on the following services:
 
 The constructor initializes the `LdapJob` with the required dependencies.
 
-```csharp
 public LdapJob(ILogger<LdapJob> logger, IOptions<MainSettings> options, ISettingsToSchemaFacade settingsToSchemaFacade) : base(logger, options)
 {
     _settingsToSchemaFacade = settingsToSchemaFacade;
@@ -105,7 +107,6 @@ The `SchemaType` enum is defined in the `IWMM.Settings` namespace and is used to
 
 The `SchemaType` enum is defined as follows:
 
-```csharp
 namespace IWMM.Settings
 {
     public enum SchemaType
@@ -130,7 +131,6 @@ The `OpnSenseIpWhiteListSettings` class is used to configure the IP whitelist se
 
 The constructor initializes the `AllowedEntries` and `ExcludedEntries` properties.
 
-```csharp
 public OpnSenseIpWhiteListSettings()
 {
     AllowedEntries = new List<string>();
@@ -152,7 +152,6 @@ The `TraefikIpWhiteListSettings` class is used to configure the IP whitelist set
 
 The constructor initializes the `AllowedEntries`, `ExcludedEntries`, and `TraefikMiddlewareSettings` properties.
 
-```csharp
 public TraefikIpWhiteListSettings()
 {
     AllowedEntries = new List<string>();
@@ -180,6 +179,7 @@ This method retrieves LDAP organizational unit (OU) information based on a disti
 
 ```http
 GET /ldapOu?dn=example;dn
+```
 
 ## TraefikController
 
@@ -212,6 +212,7 @@ public TraefikController(IHostEnvironment hostEnvironment,
     _logger = logger;
     _schemaMerger = schemaMerger;
 }
+```
 
 #### Don't forget to pull docker image instead 
 ```docker pull turrican/iwmm:latest```
