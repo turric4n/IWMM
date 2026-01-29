@@ -18,8 +18,10 @@ namespace IWMM.Entities
         public string Dn { get; set; }
         public string Name { get; set; }
         public string Fqdn { get; set; }
+        public string Ou { get; set; }
         public List<string> AdditionalIps { get; set; }
-        public string CurrentIp { get; set; }        
+        public string CurrentIp { get; set; }
+        public bool InvalidIp { get; set; }
         public string PreviousIp { get; set; }
         public bool IpChanged { get; set; }
     }

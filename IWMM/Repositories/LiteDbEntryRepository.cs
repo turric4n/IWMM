@@ -72,6 +72,17 @@ namespace IWMM.Repositories
             return _entries.FindAll().Where(entry => entry.Dn.ToLowerInvariant().Contains(dn.ToLowerInvariant()));
         }
 
+        public IEnumerable<Entry> FindByOu(string ou)
+        {
+            return _entries.FindAll().Where(entry => entry.Ou?.ToLowerInvariant() == ou.ToLowerInvariant());
+        }
+
+        public void RemoveEntry(Entry entry)
+        {
+            _entries.Delete(entry.Id);
+            _logger.LogInformation($"Removed entry from database -> {entry.Name}. CurrentIP : {entry.CurrentIp} - PreviousIP : {entry.PreviousIp } ");
+        }
+
         public void Dispose()
         {
             _liteDatabase.Dispose();

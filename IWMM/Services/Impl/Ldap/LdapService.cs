@@ -35,6 +35,7 @@ namespace IWMM.Services.Impl.Ldap
                         ?.GetValue<string>() ?? string.Empty;
                     mappedEntry.Fqdn = entry.DirectoryAttributes.FirstOrDefault(x => x.Name == "dNSHostName")
                         ?.GetValue<string>() ?? string.Empty;
+                    mappedEntry.Ou = mappedEntry.Dn.Substring(mappedEntry.Dn.IndexOf(',') + 1);
                     mappedEntries.Add(mappedEntry);
                 }
 

@@ -13,5 +13,7 @@ namespace IWMM.Entities
         Entry GetByName(string name);
         IEnumerable<Entry> FindByNames(IEnumerable<string> names);
         IEnumerable<Entry> FindByDn(string dn);
+        IEnumerable<Entry> FindByOu(string ou);
+        void RemoveEntry(Entry entry);
     }
 }

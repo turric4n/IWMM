@@ -32,6 +32,10 @@ builder.WebHost
 
     .ConfigureAppConfiguration((builderContext, config) =>
     {
+        var configFile = string.IsNullOrEmpty(commandLineParams.ConfigFile) ? "iwmm.yml" : commandLineParams.ConfigFile;
+
+        var path = Environment.CurrentDirectory;
+
         config
             .AddYamlFile(commandLineParams.ConfigFile, optional: false, reloadOnChange: true);
     })

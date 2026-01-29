@@ -1,6 +1,7 @@
 ﻿using IWMM.Entities;
 using IWMM.Services.Abstractions;
 using IWMM.Settings;
+using System.Linq;
 using Entry = IWMM.Entities.Entry;
 
 namespace IWMM.Services.Impl.Facade
@@ -101,10 +102,34 @@ namespace IWMM.Services.Impl.Facade
         {
             var entries = _ldapService.RetrieveEntries("(objectClass=Computer)");
 
+            var currentOu = string.Empty;
+
             foreach (var entry in entries)
             {
                 try
                 {
+                    if (entry.Ou != currentOu)
+                    {
+                        currentOu = entry.Ou;
+
+                        _logger.LogInformation($"Getting old entries to remove from this OU - {currentOu}");
+
+                        var oldOuEntries = _entryRepository.FindByOu(currentOu).ToList();
+
+                        var currentOuEntries = entries.Where(e => e.Ou == entry.Ou).ToList();
+
+                        var entriesToRemove = oldOuEntries.Where(dbEntry => currentOuEntries.All(e => e.Name != dbEntry.Name)).ToList();
+
+                        foreach (var entryToRemove in entriesToRemove)
+                        {
+                            _entryRepository.RemoveEntry(entryToRemove);
+                        }
+
+                        _logger.LogInformation($"Processing LDAP OU: {entry.Ou}");
+                    }
+
+                    currentOu = entry.Ou;
+
                     var plainIps = GetResolvedIpsFromEntry(entry);
 
                     var dbEntry = _entryRepository.GetByName(entry.Name);
@@ -126,6 +151,8 @@ namespace IWMM.Services.Impl.Facade
                     dbEntry.Name = entry.Name;
 
                     dbEntry.Dn = entry.Dn;
+
+                    dbEntry.Ou = entry.Ou;
 
                     _entryRepository.AddOrUpdate(dbEntry);
                 }
