@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 namespace IWMM.Tests.Unit
 {
     [TestFixture(Category = "Unit Test")]
+    [Explicit("Requires a configured LDAP server to run")]
     public class LdapServiceShould
     {
         private Mock<ILogger<LdapService>> loggerMock;
@@ -32,7 +33,6 @@ namespace IWMM.Tests.Unit
         }
 
         [Test]
-        [Ignore("Need to define LDAP server")]
         public void Return_entries_from_ldap_server_given_valid_dsn()
         {
             
@@ -40,6 +40,9 @@ namespace IWMM.Tests.Unit
             var entries = ldapService.RetrieveEntries("(objectClass=Computer)");
             Assert.IsNotNull(entries);
             Assert.IsNotEmpty(entries);
+            Assert.IsTrue(entries.All(x => !string.IsNullOrWhiteSpace(x.Dn)));
+            Assert.IsTrue(entries.All(x => !string.IsNullOrWhiteSpace(x.Name)));
+            Assert.IsTrue(entries.Count() > 10);
         }
     }
 }
