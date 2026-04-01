@@ -43,6 +43,9 @@ namespace IWMM.Services.Impl.Traefik
         {
             var result = currentSchema;
 
+            if (additionalSchema == null)
+                return currentSchema;
+
             if (additionalSchema.http != null)
             {
                 foreach (var additionalItem in additionalSchema.http)
@@ -62,6 +65,7 @@ namespace IWMM.Services.Impl.Traefik
 
             foreach (dynamic schema in schemas)
             {
+                if (schema == null) continue;
                 result = Merge(result, schema);
             }
 
