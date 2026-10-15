@@ -7,6 +7,7 @@ namespace IWMM.Settings
         public MainSettings()
         {
             TraefikIpWhiteListSettings = new List<TraefikIpWhiteListSettings>();
+            IpWhiteListSettings = new List<TraefikIpWhiteListSettings>();
             OpnSenseIpWhiteListSettings = new List<OpnSenseIpWhiteListSettings>();
             Entries = new List<Entry>();
             IpStrategyExcludedEntries = new List<ExcludedEntries>();
@@ -15,6 +16,7 @@ namespace IWMM.Settings
 
         public List<OpnSenseIpWhiteListSettings> OpnSenseIpWhiteListSettings { get; set; }
         public List<TraefikIpWhiteListSettings> TraefikIpWhiteListSettings { get; set; }
+        public List<TraefikIpWhiteListSettings> IpWhiteListSettings { get; set; }
         public List<string> AdditionalTraefikPlainFileSettingsPaths { get; set; }
         public List<Entry> Entries { get; set; }
         public List<Group> Groups { get; set; }

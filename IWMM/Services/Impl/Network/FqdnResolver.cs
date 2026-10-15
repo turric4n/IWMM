@@ -7,13 +7,11 @@ namespace IWMM.Services.Impl.Network
 {
     public class FqdnResolver : IFqdnResolver
     {
-#if Windows
         [DllImport("dnsapi.dll", EntryPoint = "DnsFlushResolverCache")]
         static extern UInt32 DnsFlushResolverCache();
 
         [DllImport("dnsapi.dll", EntryPoint = "DnsFlushResolverCacheEntry_A")]
         public static extern int DnsFlushResolverCacheEntry(string hostName);
-#endif
 
         private const string FqdnResolverExceptionMessage = "Couldn't resolve FQDN : ";
         private const string IpV6SubnetPrefix = "::ffff:";
@@ -30,9 +28,11 @@ namespace IWMM.Services.Impl.Network
             try
             {
                 ServicePointManager.DnsRefreshTimeout = 0;
-#if Windows
-                DnsFlushResolverCache();
-#endif
+
+                if (OperatingSystem.IsWindows())
+                {
+                    DnsFlushResolverCache();
+                }
 
                 var gotIps = await Dns.GetHostAddressesAsync(fqdn, AddressFamily.InterNetwork);
 

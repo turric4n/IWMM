@@ -58,6 +58,14 @@ builder.WebHost
 
         services.Configure<MainSettings>(hostContext.Configuration.GetSection("MainSettings"));
 
+        services.PostConfigure<MainSettings>(settings =>
+        {
+            if (settings.TraefikIpWhiteListSettings.Count == 0 && settings.IpWhiteListSettings.Count > 0)
+            {
+                settings.TraefikIpWhiteListSettings = settings.IpWhiteListSettings;
+            }
+        });
+
         services.AddTransient<IFqdnResolver, FqdnResolver>();
 
         services.AddSingleton<IEntryRepository, LiteDbEntryRepository>();

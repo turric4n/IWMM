@@ -62,7 +62,12 @@ namespace IWMM.Controllers
 
             foreach (var whitelistSetting in whitelistSettings)
             {
-                entryBooks.Add(_settingsToSchemaFacade.GenerateEntryBook(whitelistSetting, excludedSettings, groups, entries));
+                var entryBook = _settingsToSchemaFacade.GenerateEntryBook(whitelistSetting, excludedSettings, groups, entries);
+
+                if (entryBook != null)
+                {
+                    entryBooks.Add(entryBook);
+                }
             }
 
             var additionalFileSchemas = GetAdditionalFileSchemas();
@@ -75,6 +80,12 @@ namespace IWMM.Controllers
             }
 
             var merged = _schemaMerger.Merge(additionalFileSchemas);
+
+            if (((IDictionary<string, object>)merged).Count == 0)
+            {
+                _logger.LogWarning(
+                    $"Resulting traefik schema is empty -> {entryBooks.Count} whitelist entry books generated from {whitelistSettings.Count} whitelist settings, {additionalFileSchemas.Count} additional schemas loaded. Check MainSettings:TraefikIpWhiteListSettings (or legacy IpWhiteListSettings) and AdditionalTraefikPlainFileSettingsPaths in the config file.");
+            }
 
             var repository = _settingsToSchemaFacade.GetSchemaRepository(SchemaType.TraefikIpWhitelistMiddlewareFile);
 
@@ -95,7 +106,16 @@ namespace IWMM.Controllers
                 {
                     var files = Directory.GetFiles(additionalSettingsPath);
 
+                    if (files.Length == 0)
+                    {
+                        _logger.LogWarning($"No additional config files found for path or pattern -> {additionalSettingsPath}");
+                    }
+
                     result.AddRange(files.Select(file => repository.Load(file)));
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    _logger.LogWarning($"Additional config path not found, skipping -> {additionalSettingsPath}");
                 }
                 catch (Exception ex)
                 {
