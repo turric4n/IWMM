@@ -1,5 +1,4 @@
 ﻿http:
-  middlewares: {}
   routers:
     blabla:
       rule: Host(`blabla.com`)

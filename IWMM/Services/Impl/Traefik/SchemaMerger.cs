@@ -69,7 +69,29 @@ namespace IWMM.Services.Impl.Traefik
                 result = Merge(result, schema);
             }
 
-            return result;
+            return PruneEmptySections(result);
+        }
+
+        private static dynamic PruneEmptySections(dynamic schema)
+        {
+            var root = (IDictionary<string, object>)schema;
+            var http = (IDictionary<string, object>)root["http"];
+
+            var emptyKeys = http.Keys
+                .Where(key => http[key] is IDictionary<string, object> section && section.Count == 0)
+                .ToList();
+
+            foreach (var key in emptyKeys)
+            {
+                http.Remove(key);
+            }
+
+            if (http.Count == 0)
+            {
+                root.Remove("http");
+            }
+
+            return schema;
         }
     }
 }
