@@ -1,4 +1,5 @@
 using FluentAssertions;
+using System;
 using IWMM.Services.Abstractions;
 using IWMM.Services.Impl.Network;
 using Microsoft.Extensions.Logging;
@@ -33,17 +34,17 @@ namespace IWMM.Tests
         [TestCase("test.")]
         [TestCase("www.piso")]
         [TestCase("fotoc")]
-        public void Given_Invalid_Fqdn_String_Should_Throw(string fqdn)
-        { 
+        public async Task Given_Invalid_Fqdn_String_Should_Throw(string fqdn)
+        {
             //Act
-            AsyncTestDelegate act = () =>
+            Func<Task> act = () =>
             {
                 return fqdnResolver.GetIpAddressesAsync(fqdn);
             };
 
             //Assert
 
-            Assert.ThrowsAsync<FqdnResolverException>(act);
+            await act.Should().ThrowAsync<FqdnResolverException>();
         }
 
         [TestCase("localhost", "127.0.0.1")]

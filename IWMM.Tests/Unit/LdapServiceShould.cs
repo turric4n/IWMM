@@ -1,4 +1,5 @@
-﻿using IWMM.Services.Impl.Network;
+﻿using FluentAssertions;
+using IWMM.Services.Impl.Network;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -38,11 +39,11 @@ namespace IWMM.Tests.Unit
             
             var ldapService = new LdapService(mainSettingsMock.Object, loggerMock.Object);
             var entries = ldapService.RetrieveEntries("(objectClass=Computer)");
-            Assert.IsNotNull(entries);
-            Assert.IsNotEmpty(entries);
-            Assert.IsTrue(entries.All(x => !string.IsNullOrWhiteSpace(x.Dn)));
-            Assert.IsTrue(entries.All(x => !string.IsNullOrWhiteSpace(x.Name)));
-            Assert.IsTrue(entries.Count() > 10);
+            entries.Should().NotBeNull();
+            entries.Should().NotBeEmpty();
+            entries.Should().OnlyContain(x => !string.IsNullOrWhiteSpace(x.Dn));
+            entries.Should().OnlyContain(x => !string.IsNullOrWhiteSpace(x.Name));
+            entries.Should().HaveCountGreaterThan(10);
         }
     }
 }

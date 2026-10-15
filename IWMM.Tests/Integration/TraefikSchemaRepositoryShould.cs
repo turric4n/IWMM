@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using FluentAssertions;
 using IWMM.Entities;
 using IWMM.Services.Impl.Traefik;
 using IWMM.Settings;
@@ -95,10 +96,10 @@ namespace IWMM.Tests.Integration
 
             //Act
             var underScoreSchema = _yamelYamlRepository.Load(camelcasefilename);
-            var serializedYaml = _yamelYamlRepository.Serialize(underScoreSchema);
+            string serializedYaml = _yamelYamlRepository.Serialize(underScoreSchema);
 
             //Assert
-            Assert.AreEqual(validcamelcase, serializedYaml);
+            serializedYaml.Should().Be(validcamelcase);
         }
 
         [Test]
@@ -117,10 +118,10 @@ namespace IWMM.Tests.Integration
             //Act
             var schema = _traefikSchemaAdaptor.GetSchema(listEntrybook);
 
-            var serializedYaml = _yamelYamlRepository.Serialize(schema);
-            
+            string serializedYaml = _yamelYamlRepository.Serialize(schema);
+
             //Assert
-            Assert.AreEqual(traefikYaml, serializedYaml);
+            serializedYaml.Should().Be(traefikYaml);
         }
 
         [Test]
@@ -140,8 +141,8 @@ namespace IWMM.Tests.Integration
             var mergedSchema = _schemaMerger.Merge(loadedSchemaList);
 
             //Assert
-            var serializedYaml = _yamelYamlRepository.Serialize(mergedSchema);
-            Assert.AreEqual(validMerge, serializedYaml);
+            string serializedYaml = _yamelYamlRepository.Serialize(mergedSchema);
+            serializedYaml.Should().Be(validMerge);
         }
 
         [Test]
@@ -172,8 +173,8 @@ namespace IWMM.Tests.Integration
             var mergedSchema = _schemaMerger.Merge(loadedSchemaList);
 
             //Assert
-            var serializedYaml = _yamelYamlRepository.Serialize(mergedSchema);
-            Assert.AreEqual(validMerge, serializedYaml);
+            string serializedYaml = _yamelYamlRepository.Serialize(mergedSchema);
+            serializedYaml.Should().Be(validMerge);
         }
 
 
@@ -207,15 +208,13 @@ namespace IWMM.Tests.Integration
             var contentReloaded = File.ReadAllText(settingsPath);
 
             //Assert
-            Assert.IsTrue(File.Exists(settingsPath));
+            File.Exists(settingsPath).Should().BeTrue();
 
-            Assert.IsTrue(!string.IsNullOrEmpty(content));
+            content.Should().NotBeNullOrEmpty();
+            content.Should().Be(traefikYaml);
 
-            Assert.AreEqual(content, traefikYaml);
-
-            Assert.IsTrue(!string.IsNullOrEmpty(contentReloaded));
-
-            Assert.AreEqual(contentReloaded, traefikYaml);
+            contentReloaded.Should().NotBeNullOrEmpty();
+            contentReloaded.Should().Be(traefikYaml);
         }
     }
 }

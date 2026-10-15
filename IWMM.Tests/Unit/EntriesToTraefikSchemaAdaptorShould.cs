@@ -1,3 +1,4 @@
+using FluentAssertions;
 using IWMM.Entities;
 using IWMM.Services.Impl.Traefik;
 using NUnit.Framework;
@@ -54,18 +55,24 @@ namespace IWMM.Tests
             //Act
             var schema = traefikSchemaAdaptor.GetSchema(listEntrybook);
 
-            //Arrange
-            Assert.IsTrue(((IDictionary<string, object>)schema).ContainsKey("http"));
-            Assert.IsTrue(((IDictionary<string, object>)((IDictionary<string, object>)schema).Values.First()).ContainsKey("middlewares"));
-            Assert.IsTrue(((IDictionary<string, object>)((IDictionary<string, object>)((IDictionary<string, object>)schema).Values.First()).Values.First()).ContainsKey(middlewareName));
-            Assert.IsTrue(((IDictionary<string, object>)((IDictionary<string, object>)((IDictionary<string, object>)((IDictionary<string, object>)schema).Values.First()).Values.First()).Values.First()).ContainsKey("ipWhiteList"));
-            Assert.IsTrue(((IDictionary<string, object>)((IDictionary<string, object>)((IDictionary<string, object>)((IDictionary<string, object>)((IDictionary<string, object>)schema).Values.First()).Values.First()).Values.First()).Values.First()).ContainsKey("sourceRange"));
-            Assert.IsTrue(
-                ((List<string>)
-                    ((IDictionary<string, object>)
-                        ((IDictionary<string, object>)
-                            ((IDictionary<string, object>)
-                                ((IDictionary<string, object>)((IDictionary<string, object>)schema).Values.First()).Values.First()).Values.First()).Values.First()).Values.First()).Contains("1.1.1.1"));
+            //Assert
+            var root = (IDictionary<string, object>)schema;
+            root.Should().ContainKey("http");
+
+            var http = (IDictionary<string, object>)root["http"];
+            http.Should().ContainKey("middlewares");
+
+            var middlewares = (IDictionary<string, object>)http["middlewares"];
+            middlewares.Should().ContainKey(middlewareName);
+
+            var middleware = (IDictionary<string, object>)middlewares[middlewareName];
+            middleware.Should().ContainKey("ipWhiteList");
+
+            var ipWhiteList = (IDictionary<string, object>)middleware["ipWhiteList"];
+            ipWhiteList.Should().ContainKey("sourceRange");
+
+            var sourceRange = (List<string>)ipWhiteList["sourceRange"];
+            sourceRange.Should().Contain("1.1.1.1");
         }
 
     }

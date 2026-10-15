@@ -1,4 +1,5 @@
-﻿using IWMM.Entities;
+﻿using FluentAssertions;
+using IWMM.Entities;
 using IWMM.Repositories;
 using IWMM.Settings;
 using Microsoft.Extensions.Logging;
@@ -45,11 +46,11 @@ namespace IWMM.Tests.Integration
             var entryRetrieved = _entryRepository.GetByName(entry.Name);
             //Assert
 
-            Assert.IsNotNull(entryRetrieved);
-            Assert.AreEqual(entry.Name, entryRetrieved.Name);
-            Assert.AreEqual(entry.Fqdn, entryRetrieved.Fqdn);
-            Assert.AreEqual(entry.PreviousIp, entryRetrieved.PreviousIp);
-            Assert.AreEqual(entry.CurrentIp, entryRetrieved.CurrentIp);
+            entryRetrieved.Should().NotBeNull();
+            entryRetrieved.Name.Should().Be(entry.Name);
+            entryRetrieved.Fqdn.Should().Be(entry.Fqdn);
+            entryRetrieved.PreviousIp.Should().Be(entry.PreviousIp);
+            entryRetrieved.CurrentIp.Should().Be(entry.CurrentIp);
         }
     }
 }
