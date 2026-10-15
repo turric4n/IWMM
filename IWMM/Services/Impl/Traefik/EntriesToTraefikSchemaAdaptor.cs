@@ -34,7 +34,7 @@ namespace IWMM.Services.Impl.Traefik
                         whitelist.sourceRange.Add(entry.CurrentIp);
                     }
 
-                    foreach (var ip in entry.AdditionalIps.Where(ip => ip != entry.CurrentIp))
+                    foreach (var ip in (entry.AdditionalIps ?? Enumerable.Empty<string>()).Where(ip => ip != entry.CurrentIp))
                     {
                         whitelist.sourceRange.Add(ip);
                     }
@@ -47,7 +47,7 @@ namespace IWMM.Services.Impl.Traefik
                     whitelist.ipStrategy.excludedIPs = new List<string>();
                     foreach (var excludedIp in entryBook.MiddlewareExcludedEntries)
                     {
-                        var ips = excludedIp.Ips.Split(',');
+                        var ips = excludedIp.Ips?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
                         foreach (var ip in ips)
                         {
                             whitelist.ipStrategy.excludedIPs.Add(ip);
